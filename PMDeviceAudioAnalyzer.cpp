@@ -6,8 +6,6 @@
 //
 //
 
-// Just added for subtree testing purposes.
-
 #include "PMDeviceAudioAnalyzer.hpp"
 
 ///--------------------------------------------------------------
