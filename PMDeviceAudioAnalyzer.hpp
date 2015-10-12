@@ -6,12 +6,8 @@
 //
 //
 
-// Added for testing purposes
-// Added (again) for testing purposes
-// Added (again and again) for testing purposes
-
-#ifndef PMSoundAnalyzer_hpp
-#define PMSoundAnalyzer_hpp
+#ifndef PMDeviceAudioAnalyzer_hpp
+#define PMDeviceAudioAnalyzer_hpp
 
 #include <stdio.h>
 #include "ofMain.h"
@@ -60,4 +56,4 @@ private:
     bool                    isSetup;
 };
 
-#endif /* PMSoundAnalyzer_h */
+#endif /* PMDeviceAudioAnalyzer_h */
