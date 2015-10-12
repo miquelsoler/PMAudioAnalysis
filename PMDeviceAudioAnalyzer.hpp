@@ -7,6 +7,7 @@
 //
 
 // Added for testing purposes
+// Added (again) for testing purposes
 
 #ifndef PMSoundAnalyzer_hpp
 #define PMSoundAnalyzer_hpp
