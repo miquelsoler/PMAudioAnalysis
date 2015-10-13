@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "ofMain.h"
 #include "ofxAudioAnalyzer.h"
+#include "PMAudioOutParams.h"
 
 typedef enum
 {
@@ -38,6 +39,7 @@ public:
 
 private:
 
+    // Setup
     int                         deviceID;
     int                         inChannels;
     int                         outChannels;
@@ -45,9 +47,17 @@ private:
     int                         bufferSize;
     int                         numBuffers;
 
+    // Channel mode
     PMDAA_ChannelMode           channelMode;
     int                         channelNumber;
 
+    // Events for listeners
+    ofEvent<pitchParams>        eventPitchChanged;
+    ofEvent<void>               eventOnsetDetected;
+    ofEvent<void>               eventSilenceDetected;
+    ofEvent<fftBandsParams>     eventFFTBandsChanged;
+
+    // Internals
     ofSoundStream               soundStream;
     vector<ofxAudioAnalyzer *>  audioAnalyzers;
 
