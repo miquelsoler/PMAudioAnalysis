@@ -89,17 +89,42 @@ void PMDeviceAudioAnalyzer::stop()
 ///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
+    // Parse input array
     for (int i=0; i<nChannels; ++i)
-    {
         for (int j=0; j<bufferSize; j++)
-        {
             buffers[i][j] = input[i + (nChannels * j)];
+
+    pitchParams pitchParams;
+    pitchParams.deviceID = deviceID;
+    pitchParams.midiNote = 0;
+    pitchParams.midiNoteNoOctave = 0;
+
+    onsetParams onsetParams;
+    onsetParams.deviceID = deviceID;
+
+    for (int i=0; i<nChannels; i++)
+    {
+        audioAnalyzers[i]->analyze(buffers[i], bufferSize);
+
+        // Pitch
+        pitchParams.channel = i;
+        pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
+        pitchParams.midiNote = 0;
+        pitchParams.midiNoteNoOctave = 0;
+        ofNotifyEvent(eventPitchChanged, pitchParams, this);
+
+        // Onset
+        if (audioAnalyzers[i]->getIsOnset())
+        {
+            onsetParams.channel = i;
+            ofNotifyEvent(eventOnsetDetected, onsetParams, this);
         }
     }
 
     // For testing purposes
     {
         audioAnalyzers[0]->analyze(buffers[0], bufferSize);
+        pitchParams.freq = audioAnalyzers[0]->getPitchFreq();
         cout << "RMS 0: " << audioAnalyzers[0]->getPitchFreq() << endl;
         audioAnalyzers[1]->analyze(buffers[1], bufferSize);
         cout << "RMS 1: " << audioAnalyzers[1]->getPitchFreq() << endl;

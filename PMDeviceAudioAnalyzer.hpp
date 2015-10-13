@@ -53,7 +53,7 @@ private:
 
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;
-    ofEvent<void>               eventOnsetDetected;
+    ofEvent<onsetParams>        eventOnsetDetected;
     ofEvent<void>               eventSilenceDetected;
     ofEvent<fftBandsParams>     eventFFTBandsChanged;
 

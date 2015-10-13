@@ -9,14 +9,24 @@
 #ifndef PMAudioOutParams_h
 #define PMAudioOutParams_h
 
-struct pitchParams
+struct baseAudioOutParams
+{
+    int deviceID;
+    int channel;
+};
+
+struct pitchParams : public baseAudioOutParams
 {
     float freq;
     float midiNote;
     float midiNoteNoOctave;
 };
 
-struct fftBandsParams
+struct onsetParams : public baseAudioOutParams
+{
+};
+
+struct fftBandsParams : public baseAudioOutParams
 {
     float low;
     float mid;
