@@ -124,9 +124,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     // For testing purposes
     {
         audioAnalyzers[0]->analyze(buffers[0], bufferSize);
-        pitchParams.freq = audioAnalyzers[0]->getPitchFreq();
-        cout << "RMS 0: " << audioAnalyzers[0]->getPitchFreq() << endl;
+        pitchParams.freq = audioAnalyzers[0]->getSalience();
+        cout << "Pitch freq 0: " << audioAnalyzers[0]->getSalience() << endl;
         audioAnalyzers[1]->analyze(buffers[1], bufferSize);
-        cout << "RMS 1: " << audioAnalyzers[1]->getPitchFreq() << endl;
+        cout << "Pitch freq 1: " << audioAnalyzers[1]->getPitchFreq() << endl;
     }
 }

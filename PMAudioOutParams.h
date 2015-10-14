@@ -3,7 +3,6 @@
 //  PMConcertParaules
 //
 //  Created by Miquel Àngel Soler on 13/10/15.
-//  hola
 //
 
 #ifndef PMAudioOutParams_h
