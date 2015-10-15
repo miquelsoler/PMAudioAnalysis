@@ -99,8 +99,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
     pitchParams pitchParams;
     pitchParams.deviceID = deviceID;
-    pitchParams.midiNote = 0;
-    pitchParams.midiNoteNoOctave = 0;
 
     onsetParams onsetParams;
     onsetParams.deviceID = deviceID;
