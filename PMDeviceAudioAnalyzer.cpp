@@ -45,22 +45,23 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
 {
     if (isSetup) return;
 
+    channelMode = _channelMode;
+    channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
+
+    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+
+    // Creation of audio in buffers
     // Buffer matrix:
     // - Rows: channels
     // - Cols: channel buffer
 
-    buffers = new float *[inChannels];
-    for (int i=0; i<inChannels; i++)
-    {
+    buffers = new float *[numUsedChannels];
+    for (int i=0; i<numUsedChannels; i++)
         buffers[i] = new float[bufferSize];
-    }
 
-    channelMode = _channelMode;
-    channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
+    // ofxAudioAnalyzer(s) setup
 
-    // ofxAudioAnalyzer setup
-
-    for (int i=0; i<inChannels; i++)
+    for (int i=0; i<numUsedChannels; i++)
     {
         ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
         analyzer->setup(bufferSize, sampleRate);
@@ -89,8 +90,10 @@ void PMDeviceAudioAnalyzer::stop()
 ///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
+    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+
     // Parse input array
-    for (int i=0; i<nChannels; ++i)
+    for (int i=0; i<numUsedChannels; ++i)
         for (int j=0; j<bufferSize; j++)
             buffers[i][j] = input[i + (nChannels * j)];
 
@@ -102,31 +105,25 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     onsetParams onsetParams;
     onsetParams.deviceID = deviceID;
 
-    for (int i=0; i<nChannels; i++)
+    for (int i=0; i<numUsedChannels; i++)
     {
         audioAnalyzers[i]->analyze(buffers[i], bufferSize);
 
         // Pitch
-        pitchParams.channel = i;
+        pitchParams.channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
         pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
         pitchParams.midiNote = 0;
         pitchParams.midiNoteNoOctave = 0;
         ofNotifyEvent(eventPitchChanged, pitchParams, this);
 
+        cout << "CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
+
         // Onset
         if (audioAnalyzers[i]->getIsOnset())
         {
-            onsetParams.channel = i;
+            onsetParams.channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
+            cout << "CH" << onsetParams.channel << " - Onset!" << endl;
             ofNotifyEvent(eventOnsetDetected, onsetParams, this);
         }
-    }
-
-    // For testing purposes
-    {
-        audioAnalyzers[0]->analyze(buffers[0], bufferSize);
-        pitchParams.freq = audioAnalyzers[0]->getSalience();
-        cout << "Pitch freq 0: " << audioAnalyzers[0]->getSalience() << endl;
-        audioAnalyzers[1]->analyze(buffers[1], bufferSize);
-        cout << "Pitch freq 1: " << audioAnalyzers[1]->getPitchFreq() << endl;
     }
 }
