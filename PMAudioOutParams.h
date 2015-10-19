@@ -27,11 +27,9 @@ struct onsetParams : public baseAudioOutParams
 {
 };
 
-struct fftBandsParams : public baseAudioOutParams
+struct freqBandsParams : public baseAudioOutParams
 {
-    float low;
-    float mid;
-    float high;
+    float *melBands;
 };
 
 

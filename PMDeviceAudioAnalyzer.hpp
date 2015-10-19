@@ -27,12 +27,22 @@ class PMDeviceAudioAnalyzer : public ofBaseSoundInput
 {
 public:
 
-    // Constructor just sets attributes. Calling it doesn't start the sound stream analysis.
-    PMDeviceAudioAnalyzer(ofBaseApp *app, int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize);
-    PMDeviceAudioAnalyzer();
+    /**
+     * PMDeviceAudioAnalyzer(...)
+     * Constructor just sets sound stream attributes. Calling it doesn't start the sound stream analysis.
+     */
+    PMDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize);
+
     ~PMDeviceAudioAnalyzer();
 
-    void setup(PMDAA_ChannelMode channelMode = PMDAA_CHANNEL_MULTI, int channelNumber = -1);
+    /**
+     * setup:
+     * - channelMode: mono or multichannel
+     * - channelNumber: 0..N (ignored when in multichannel mode)
+     * - useMelBands: true if it needs obtaining mel bands
+     * - numMelBands: number of mel bands (ignored when useMelBands=false)
+     */
+    void setup(PMDAA_ChannelMode channelMode, int channelNumber, bool useMelBands, int numMelBands);
 
     void start();
     void stop();
@@ -53,11 +63,15 @@ private:
     PMDAA_ChannelMode           channelMode;
     int                         channelNumber;
 
+    // Mel bands
+    bool                        useMelBands;
+    int                         numMelBands;
+
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;
     ofEvent<onsetParams>        eventOnsetDetected;
     ofEvent<void>               eventSilenceDetected;
-    ofEvent<fftBandsParams>     eventFFTBandsChanged;
+    ofEvent<freqBandsParams>    eventFFTBandsChanged;
 
     // Internals
     ofSoundStream               soundStream;

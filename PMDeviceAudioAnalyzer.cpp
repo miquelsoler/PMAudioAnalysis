@@ -9,7 +9,7 @@
 #include "PMDeviceAudioAnalyzer.hpp"
 
 ///--------------------------------------------------------------
-PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(ofBaseApp *app, int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
+PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
     inChannels = _inChannels;
@@ -22,8 +22,10 @@ PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(ofBaseApp *app, int _deviceID, int 
     soundStream.printDeviceList();
 
     soundStream.setDeviceID(deviceID);
-    cout << "Device Id: " << deviceID << endl;
-    cout << "Setup: " << app << ", " << outChannels << ", " << inChannels << ", " << sampleRate << ", " << bufferSize << ", " << numBuffers << endl;
+
+//    cout << "PMDeviceAudioAnalyzer --------" << endl;
+//    cout << "  Device Id: " << deviceID << endl;
+//    cout << "  Setup: " << app << ", " << outChannels << ", " << inChannels << ", " << sampleRate << ", " << bufferSize << ", " << numBuffers << endl;
 
     isSetup = false;
 }
@@ -41,12 +43,17 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 }
 
 ///--------------------------------------------------------------
-void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNumber)
+void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNumber, bool _useMelBands, int _numMelBands)
 {
     if (isSetup) return;
 
+    // Channels
     channelMode = _channelMode;
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
+
+    // Mel bands
+    useMelBands = _useMelBands;
+    numMelBands = useMelBands ? _numMelBands : 1;
 
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
@@ -64,7 +71,7 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
     for (int i=0; i<numUsedChannels; i++)
     {
         ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
-        analyzer->setup(bufferSize, sampleRate);
+        analyzer->setup(bufferSize, sampleRate, numMelBands);
 
         audioAnalyzers.push_back(analyzer);
     }
@@ -90,6 +97,7 @@ void PMDeviceAudioAnalyzer::stop()
 ///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
+//    cout << "audioIn" << endl;
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
     // Parse input array
@@ -103,23 +111,38 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     onsetParams onsetParams;
     onsetParams.deviceID = deviceID;
 
+    freqBandsParams freqBandsParams;
+    freqBandsParams.deviceID = deviceID;
+
     for (int i=0; i<numUsedChannels; i++)
     {
         audioAnalyzers[i]->analyze(buffers[i], bufferSize);
 
+        int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
+
         // Pitch
-        pitchParams.channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
+        pitchParams.channel = channel;
         pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
         pitchParams.midiNote = 0;
         pitchParams.midiNoteNoOctave = 0;
         ofNotifyEvent(eventPitchChanged, pitchParams, this);
+//        cout << "CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
 
-        cout << "CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
+        // Frequency bands
+        freqBandsParams.channel = channel;
+        freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
+
+        vector<float> a(audioAnalyzers[i]->getMelBands(), audioAnalyzers[i]->getMelBands() + numMelBands);
+//        cout << "------- " << sizeof(a) << endl;
+//        for (int i=0; i<numMelBands; i++)
+//        {
+//            cout << a[i] << endl;
+//        }
 
         // Onset
         if (audioAnalyzers[i]->getIsOnset())
         {
-            onsetParams.channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
+            onsetParams.channel = channel;
             cout << "CH" << onsetParams.channel << " - Onset!" << endl;
             ofNotifyEvent(eventOnsetDetected, onsetParams, this);
         }
