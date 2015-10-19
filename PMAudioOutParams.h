@@ -8,6 +8,8 @@
 #ifndef PMAudioOutParams_h
 #define PMAudioOutParams_h
 
+#pragma once
+
 struct baseAudioOutParams
 {
     int deviceID;

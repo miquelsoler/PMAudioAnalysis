@@ -6,6 +6,8 @@
 //
 //
 
+#pragma once
+
 #ifndef PMDeviceAudioAnalyzer_hpp
 #define PMDeviceAudioAnalyzer_hpp
 
