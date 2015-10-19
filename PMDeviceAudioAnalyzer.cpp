@@ -131,13 +131,14 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         // Frequency bands
         freqBandsParams.channel = channel;
         freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
+        freqBandsParams.numBands = numMelBands;
+        ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
 
-        vector<float> a(audioAnalyzers[i]->getMelBands(), audioAnalyzers[i]->getMelBands() + numMelBands);
-//        cout << "------- " << sizeof(a) << endl;
-//        for (int i=0; i<numMelBands; i++)
-//        {
-//            cout << a[i] << endl;
-//        }
+        for (int i=0; i<freqBandsParams.numBands; i++)
+        {
+            cout << freqBandsParams.melBands[i] << " ";
+        }
+        cout << endl;
 
         // Onset
         if (audioAnalyzers[i]->getIsOnset())

@@ -71,7 +71,7 @@ private:
     ofEvent<pitchParams>        eventPitchChanged;
     ofEvent<onsetParams>        eventOnsetDetected;
     ofEvent<void>               eventSilenceDetected;
-    ofEvent<freqBandsParams>    eventFFTBandsChanged;
+    ofEvent<freqBandsParams>    eventFreqBandsParams;
 
     // Internals
     ofSoundStream               soundStream;

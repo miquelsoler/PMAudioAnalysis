@@ -30,6 +30,7 @@ struct onsetParams : public baseAudioOutParams
 struct freqBandsParams : public baseAudioOutParams
 {
     float *melBands;
+    int numBands;
 };
 
 
