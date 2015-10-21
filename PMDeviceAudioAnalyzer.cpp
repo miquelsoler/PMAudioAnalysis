@@ -9,7 +9,7 @@
 #include "PMDeviceAudioAnalyzer.hpp"
 
 ///--------------------------------------------------------------
-PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
+void PMDeviceAudioAnalyzer::init(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
     inChannels = _inChannels;
