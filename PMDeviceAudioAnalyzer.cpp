@@ -149,3 +149,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         }
     }
 }
+
+///--------------------------------------------------------------
+vector<ofSoundDevice> PMDeviceAudioAnalyzer::getDevices()
+{
+    return soundStream.listDevices();
+}

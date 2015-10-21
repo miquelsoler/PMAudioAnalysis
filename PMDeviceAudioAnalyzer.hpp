@@ -59,6 +59,9 @@ public:
 
     void audioIn(float *input, int bufferSize, int nChannels);
 
+    vector<ofSoundDevice> getDevices();
+
+
 private:
 
     PMDeviceAudioAnalyzer() {};
