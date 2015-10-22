@@ -9,7 +9,7 @@
 #include "PMDeviceAudioAnalyzer.hpp"
 
 ///--------------------------------------------------------------
-void PMDeviceAudioAnalyzer::init(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
+PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
     inChannels = _inChannels;
@@ -53,7 +53,7 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
 
     // Mel bands
     useMelBands = _useMelBands;
-    numMelBands = useMelBands ? _numMelBands : 1;
+    numMelBands = useMelBands ? _numMelBands : 0;
 
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
@@ -148,10 +148,4 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             ofNotifyEvent(eventOnsetDetected, onsetParams, this);
         }
     }
-}
-
-///--------------------------------------------------------------
-vector<ofSoundDevice> PMDeviceAudioAnalyzer::getDevices()
-{
-    return soundStream.listDevices();
 }

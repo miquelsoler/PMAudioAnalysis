@@ -28,20 +28,12 @@ class PMDeviceAudioAnalyzer : public ofBaseSoundInput
 public:
 
     /**
-     * getInstance()
-     * Returns singleton instance
-     */
-    static PMDeviceAudioAnalyzer &getInstance()
-    {
-        static PMDeviceAudioAnalyzer instance;
-        return instance;
-    }
-
-    /**
      * PMDeviceAudioAnalyzer(...)
      * Constructor just sets sound stream attributes. Calling it doesn't start the sound stream analysis.
      */
-    void init(int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize);
+    PMDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize);
+
+    PMDeviceAudioAnalyzer() {};
 
     ~PMDeviceAudioAnalyzer();
 
@@ -59,12 +51,7 @@ public:
 
     void audioIn(float *input, int bufferSize, int nChannels);
 
-    vector<ofSoundDevice> getDevices();
-
-
 private:
-
-    PMDeviceAudioAnalyzer() {};
 
     // Setup
     int                         deviceID;
