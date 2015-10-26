@@ -33,11 +33,11 @@ PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int
 ///--------------------------------------------------------------
 PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 {
-    for (int i=0; i<inChannels; i++)
+    for (int i=0; i<inChannels; ++i)
         delete buffers[i];
     delete []buffers;
 
-    for (unsigned int i=0; i<audioAnalyzers.size(); i++)
+    for (unsigned int i=0; i<audioAnalyzers.size(); ++i)
         delete audioAnalyzers[i];
     audioAnalyzers.clear();
 }
@@ -63,12 +63,12 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
     // - Cols: channel buffer
 
     buffers = new float *[numUsedChannels];
-    for (int i=0; i<numUsedChannels; i++)
+    for (int i=0; i<numUsedChannels; ++i)
         buffers[i] = new float[bufferSize];
 
     // ofxAudioAnalyzer(s) setup
 
-    for (int i=0; i<numUsedChannels; i++)
+    for (int i=0; i<numUsedChannels; ++i)
     {
         ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
         analyzer->setup(bufferSize, sampleRate, numMelBands);
@@ -102,7 +102,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
     // Parse input array
     for (int i=0; i<numUsedChannels; ++i)
-        for (int j=0; j<bufferSize; j++)
+        for (int j=0; j<bufferSize; ++j)
             buffers[i][j] = input[i + (nChannels * j)];
 
     pitchParams pitchParams;
@@ -114,7 +114,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams freqBandsParams;
     freqBandsParams.deviceID = deviceID;
 
-    for (int i=0; i<numUsedChannels; i++)
+    for (int i=0; i<numUsedChannels; ++i)
     {
         audioAnalyzers[i]->analyze(buffers[i], bufferSize);
 
@@ -134,7 +134,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         freqBandsParams.numBands = numMelBands;
         ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
 
-        for (int i=0; i<freqBandsParams.numBands; i++)
+        for (int i=0; i<freqBandsParams.numBands; ++i)
         {
             cout << freqBandsParams.melBands[i] << " ";
         }
