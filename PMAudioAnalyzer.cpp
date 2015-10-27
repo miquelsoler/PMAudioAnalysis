@@ -46,8 +46,20 @@ void PMAudioAnalyzer::stop()
 }
 
 ///--------------------------------------------------------------
-vector<ofSoundDevice> PMAudioAnalyzer::getDevices()
+vector<ofSoundDevice> PMAudioAnalyzer::getInputDevices()
 {
     ofSoundStream soundStream;
-    return soundStream.getDeviceList();
+
+    vector<ofSoundDevice> allDevices = soundStream.getDeviceList();
+
+#ifdef OF_DEBUG
+    soundStream.printDeviceList();
+#endif
+
+    vector<ofSoundDevice> inputDevices;
+    for (int i=0; i< allDevices.size(); ++i)
+        if (allDevices[i].inputChannels > 0)
+            inputDevices.push_back(allDevices[i]);
+
+    return inputDevices;
 }

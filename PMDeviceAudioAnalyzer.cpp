@@ -134,9 +134,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         freqBandsParams.numBands = numMelBands;
         ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
 
-        for (int i=0; i<freqBandsParams.numBands; ++i)
+        for (int j=0; j<freqBandsParams.numBands; ++j)
         {
-            cout << freqBandsParams.melBands[i] << " ";
+            cout << freqBandsParams.melBands[j] << " ";
         }
         cout << endl;
 

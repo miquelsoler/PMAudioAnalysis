@@ -39,7 +39,7 @@ public:
     void start();
     void stop();
 
-    static vector<ofSoundDevice> getDevices();
+    static vector<ofSoundDevice> getInputDevices();
 
 private:
 
