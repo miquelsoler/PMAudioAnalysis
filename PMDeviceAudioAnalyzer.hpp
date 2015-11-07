@@ -54,6 +54,7 @@ public:
     void audioIn(float *input, int bufferSize, int nChannels);
 
     int getDeviceID() { return deviceID; };
+    int getChannelNumber() { return channelNumber; };
 
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;
