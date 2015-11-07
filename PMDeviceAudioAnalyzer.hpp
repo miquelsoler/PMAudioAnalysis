@@ -49,6 +49,8 @@ public:
     void start();
     void stop();
 
+    void clear();
+
     void audioIn(float *input, int bufferSize, int nChannels);
 
 private:

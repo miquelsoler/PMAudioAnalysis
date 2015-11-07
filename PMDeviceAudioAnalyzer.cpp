@@ -8,7 +8,6 @@
 
 #include "PMDeviceAudioAnalyzer.hpp"
 
-///--------------------------------------------------------------
 PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
@@ -30,7 +29,6 @@ PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int
     isSetup = false;
 }
 
-///--------------------------------------------------------------
 PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 {
     for (int i=0; i<inChannels; ++i)
@@ -42,7 +40,6 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
     audioAnalyzers.clear();
 }
 
-///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNumber, bool _useMelBands, int _numMelBands)
 {
     if (isSetup) return;
@@ -79,7 +76,6 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
     isSetup = true;
 }
 
-///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::start()
 {
     soundStream.stop();
@@ -88,13 +84,25 @@ void PMDeviceAudioAnalyzer::start()
     soundStream.setInput(this);
 }
 
-///--------------------------------------------------------------
 void PMDeviceAudioAnalyzer::stop()
 {
     soundStream.stop();
 }
 
-///--------------------------------------------------------------
+void PMDeviceAudioAnalyzer::clear()
+{
+    stop();
+
+    // Delete internal audio analyzer stuff
+    for (int i=0; i<audioAnalyzers.size(); ++i)
+        audioAnalyzers[i]->exit();
+
+    // Erase all audio analyzers from vector
+    for (int i=0; i<audioAnalyzers.size(); ++i)
+        delete audioAnalyzers[i];
+    audioAnalyzers.clear();
+}
+
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
 //    cout << "audioIn" << endl;

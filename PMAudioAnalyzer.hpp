@@ -39,6 +39,8 @@ public:
     void start();
     void stop();
 
+    void clear();
+
     static vector<ofSoundDevice> getInputDevices();
 
 private:
@@ -46,7 +48,7 @@ private:
     bool useMelBands;
     int numMelBands;
 
-    vector<PMDeviceAudioAnalyzer *> audioAnalyzers;
+    vector<PMDeviceAudioAnalyzer *> deviceAudioAnalyzers;
 };
 
 
