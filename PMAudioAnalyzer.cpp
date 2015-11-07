@@ -14,19 +14,21 @@ void PMAudioAnalyzer::init(bool _useMelBands, int _numMelBands)
     numMelBands = useMelBands ? _numMelBands : 0;
 }
 
-void PMAudioAnalyzer::addDeviceAudioAnalyzer(int deviceID,
-                                             int inChannels,
-                                             int outChannels,
-                                             int sampleRate,
-                                             int bufferSize,
-                                             PMDAA_ChannelMode channelMode,
-                                             int channelNumber)
+PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
+        int sampleRate, int bufferSize,
+        PMDAA_ChannelMode channelMode, int channelNumber)
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
-
     deviceAudioAnalyzer->setup(channelMode, channelNumber, useMelBands, numMelBands);
 
     deviceAudioAnalyzers.push_back(deviceAudioAnalyzer);
+
+    return deviceAudioAnalyzer;
+}
+
+vector<PMDeviceAudioAnalyzer *> *PMAudioAnalyzer::getAudioAnalyzers()
+{
+    return &deviceAudioAnalyzers;
 }
 
 void PMAudioAnalyzer::start()
@@ -50,8 +52,8 @@ void PMAudioAnalyzer::clear()
         deviceAudioAnalyzers[i]->clear();
 
     // Erase all device audio analyzers from vector
-    for (int i=0; i<deviceAudioAnalyzers.size(); ++i)
-        delete deviceAudioAnalyzers[i];
+//    for (int i=0; i<deviceAudioAnalyzers.size(); ++i)
+//        delete deviceAudioAnalyzers[i];
     deviceAudioAnalyzers.clear();
 }
 

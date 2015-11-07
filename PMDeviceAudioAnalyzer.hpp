@@ -53,6 +53,14 @@ public:
 
     void audioIn(float *input, int bufferSize, int nChannels);
 
+    int getDeviceID() { return deviceID; };
+
+    // Events for listeners
+    ofEvent<pitchParams>        eventPitchChanged;
+    ofEvent<onsetParams>        eventOnsetDetected;
+    ofEvent<void>               eventSilenceDetected;
+    ofEvent<freqBandsParams>    eventFreqBandsParams;
+
 private:
 
     // Setup
@@ -70,12 +78,6 @@ private:
     // Mel bands
     bool                        useMelBands;
     int                         numMelBands;
-
-    // Events for listeners
-    ofEvent<pitchParams>        eventPitchChanged;
-    ofEvent<onsetParams>        eventOnsetDetected;
-    ofEvent<void>               eventSilenceDetected;
-    ofEvent<freqBandsParams>    eventFreqBandsParams;
 
     // Internals
     ofSoundStream               soundStream;

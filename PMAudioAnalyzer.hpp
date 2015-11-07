@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "PMDeviceAudioAnalyzer.hpp"
 
+
 class PMAudioAnalyzer
 {
 public:
@@ -28,13 +29,11 @@ public:
 
     void init(bool useMelBands, int numMelBands);
 
-    void addDeviceAudioAnalyzer(int deviceID,
-                                int inChannels,
-                                int outChannels,
-                                int sampleRate,
-                                int bufferSize,
-                                PMDAA_ChannelMode channelMode,
-                                int channelNumber);
+    PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
+            int sampleRate, int bufferSize,
+            PMDAA_ChannelMode channelMode, int channelNumber);
+
+    vector<PMDeviceAudioAnalyzer *> *getAudioAnalyzers();
 
     void start();
     void stop();

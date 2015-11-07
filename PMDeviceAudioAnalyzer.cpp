@@ -134,7 +134,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         pitchParams.midiNote = 0;
         pitchParams.midiNoteNoOctave = 0;
         ofNotifyEvent(eventPitchChanged, pitchParams, this);
-//        cout << "CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
+//        cout << "DV" << pitchParams.deviceID << " CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
 
         // Frequency bands
         freqBandsParams.channel = channel;
@@ -144,15 +144,15 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
         for (int j=0; j<freqBandsParams.numBands; ++j)
         {
-            cout << freqBandsParams.melBands[j] << " ";
+//            cout << freqBandsParams.melBands[j] << " ";
         }
-        cout << endl;
+//        cout << endl;
 
         // Onset
         if (audioAnalyzers[i]->getIsOnset())
         {
             onsetParams.channel = channel;
-            cout << "CH" << onsetParams.channel << " - Onset!" << endl;
+//            cout << "CH" << onsetParams.channel << " - Onset!" << endl;
             ofNotifyEvent(eventOnsetDetected, onsetParams, this);
         }
     }
