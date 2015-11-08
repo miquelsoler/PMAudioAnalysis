@@ -7,6 +7,7 @@
 //
 
 #include "PMDeviceAudioAnalyzer.hpp"
+#include "PMAudioAnalyzerConstants.h"
 
 PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
@@ -105,6 +106,8 @@ void PMDeviceAudioAnalyzer::clear()
 
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
+    float pitchFreq;
+
 //    cout << "audioIn" << endl;
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
@@ -129,31 +132,42 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
         // Pitch
-        pitchParams.channel = channel;
-        pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
-        pitchParams.midiNote = 0;
-        pitchParams.midiNoteNoOctave = 0;
-        ofNotifyEvent(eventPitchChanged, pitchParams, this);
+        {
+            pitchFreq = audioAnalyzers[i]->getPitchFreq();
+            if ((pitchFreq > PITCH_MINFREQ) && (pitchFreq < PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
+            {
+                pitchParams.channel = channel;
+                pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
+                pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
+                pitchParams.midiNote = 0;
+                pitchParams.midiNoteNoOctave = 0;
+                ofNotifyEvent(eventPitchChanged, pitchParams, this);
 //        cout << "DV" << pitchParams.deviceID << " CH" << pitchParams.channel << " - Pitch freq:" << audioAnalyzers[i]->getPitchFreq() << endl;
+            }
+        }
 
         // Frequency bands
-        freqBandsParams.channel = channel;
-        freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
-        freqBandsParams.numBands = numMelBands;
-        ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
-
-        for (int j=0; j<freqBandsParams.numBands; ++j)
         {
+            freqBandsParams.channel = channel;
+            freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
+            freqBandsParams.numBands = numMelBands;
+            ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
+
+            for (int j=0; j<freqBandsParams.numBands; ++j)
+            {
 //            cout << freqBandsParams.melBands[j] << " ";
-        }
+            }
 //        cout << endl;
+        }
+
 
         // Onset
-        if (audioAnalyzers[i]->getIsOnset())
         {
-            onsetParams.channel = channel;
-//            cout << "CH" << onsetParams.channel << " - Onset!" << endl;
-            ofNotifyEvent(eventOnsetDetected, onsetParams, this);
+            if (audioAnalyzers[i]->getIsOnset()) {
+                onsetParams.channel = channel;
+                cout << "DV" << onsetParams.deviceID << " CH" << onsetParams.channel << " - Onset!" << endl;
+                ofNotifyEvent(eventOnsetDetected, onsetParams, this);
+            }
         }
     }
 }

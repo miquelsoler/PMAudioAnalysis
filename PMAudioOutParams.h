@@ -19,6 +19,7 @@ struct baseAudioOutParams
 struct pitchParams : public baseAudioOutParams
 {
     float freq;
+    float confidence;
     float midiNote;
     float midiNoteNoOctave;
 };
