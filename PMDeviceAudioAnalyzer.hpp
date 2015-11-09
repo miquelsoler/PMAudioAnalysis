@@ -44,7 +44,9 @@ public:
      * - useMelBands: true if it needs obtaining mel bands
      * - numMelBands: number of mel bands (ignored when useMelBands=false)
      */
-    void setup(PMDAA_ChannelMode channelMode, int channelNumber, bool useMelBands, int numMelBands);
+    void setup(PMDAA_ChannelMode channelMode, int channelNumber,
+            bool useMelBands, int numMelBands,
+            bool useSilence, int silenceThreshold);
 
     void start();
     void stop();
@@ -79,6 +81,10 @@ private:
     // Mel bands
     bool                        useMelBands;
     int                         numMelBands;
+
+    // Silence
+    bool                        useSilence;
+    int                         silenceThreshold;
 
     // Internals
     ofSoundStream               soundStream;

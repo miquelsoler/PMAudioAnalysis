@@ -27,7 +27,7 @@ public:
         return instance;
     }
 
-    void init(bool useMelBands, int numMelBands);
+    void init(bool useMelBands, int numMelBands, bool useSilence, int silenceThreshold);
 
     PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
@@ -44,8 +44,13 @@ public:
 
 private:
 
+    // Mel Bands
     bool useMelBands;
     int numMelBands;
+
+    // Silence
+    bool useSilence;
+    int silenceThreshold;
 
     vector<PMDeviceAudioAnalyzer *> deviceAudioAnalyzers;
 };

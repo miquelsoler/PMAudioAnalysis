@@ -7,7 +7,7 @@
 
 // Pitch
 static const float PITCH_MINFREQ = 100.0f;
-static const float PITCH_MAXFREQ = 700.0f;
+static const float PITCH_MAXFREQ = 800.0f;
 
 
 #endif //PMCONCERTPARAULES_PMAUDIOANALYZERCONSTANTS_H
