@@ -150,8 +150,8 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         {
             wasSilent = isSilent;
             silenceParams.channel = channel;
-            string silentOutput = isSilent ? "YES" : "NO";
-            cout << "DV" << silenceParams.deviceID << " CH" << silenceParams.channel << " Is silent? " << silentOutput << endl;
+//            string silentOutput = isSilent ? "YES" : "NO";
+//            cout << "DV" << silenceParams.deviceID << " CH" << silenceParams.channel << " Is silent? " << silentOutput << endl;
             ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
         }
 
