@@ -79,6 +79,7 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
         audioAnalyzers.push_back(analyzer);
     }
 
+    wasSilent = false;
     isSetup = true;
 }
 
@@ -141,47 +142,57 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
-        // Pitch
+        bool isSilent = audioAnalyzers[i]->getIsSilent();
+
+        // Silence
+
+        if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
         {
-            pitchFreq = audioAnalyzers[i]->getPitchFreq();
-            if ((pitchFreq > PITCH_MINFREQ) && (pitchFreq < PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
+            wasSilent = isSilent;
+            silenceParams.channel = channel;
+            string silentOutput = isSilent ? "YES" : "NO";
+            cout << "DV" << silenceParams.deviceID << " CH" << silenceParams.channel << " Is silent? " << silentOutput << endl;
+            ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+        }
+
+        // Process only when no silence detected
+        if (!isSilent)
+        {
+            // Pitch
             {
-                pitchParams.channel = channel;
-                pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
-                pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
-                pitchParams.midiNote = 0;
-                pitchParams.midiNoteNoOctave = 0;
-                ofNotifyEvent(eventPitchChanged, pitchParams, this);
+                pitchFreq = audioAnalyzers[i]->getPitchFreq();
+                if ((pitchFreq > PITCH_MINFREQ) && (pitchFreq < PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
+                {
+                    pitchParams.channel = channel;
+                    pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
+                    pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
+                    pitchParams.midiNote = 0;
+                    pitchParams.midiNoteNoOctave = 0;
+                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
+                }
             }
-        }
 
-        // Frequency bands
-        {
-            freqBandsParams.channel = channel;
-            freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
-            freqBandsParams.numBands = numMelBands;
-            ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
-        }
+            // Frequency bands
+            {
+                freqBandsParams.channel = channel;
+                freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
+                freqBandsParams.numBands = numMelBands;
+                ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
+            }
 
-        // Onset
-        {
-            if (audioAnalyzers[i]->getIsOnset()) {
-                onsetParams.channel = channel;
+            // Onset
+            {
+                if (audioAnalyzers[i]->getIsOnset()) {
+                    onsetParams.channel = channel;
 
 //                cout << "DV" << onsetParams.deviceID << " CH" << onsetParams.channel << " Onset -"
 //                        << " HFC:" << audioAnalyzers[i]->getOnsetHfc()
 //                        << " Complex:" << audioAnalyzers[i]->getOnsetHfc()
 //                        << " Flux:" << audioAnalyzers[i]->getOnsetFlux()
 //                        << endl;
-                ofNotifyEvent(eventOnsetDetected, onsetParams, this);
+                    ofNotifyEvent(eventOnsetDetected, onsetParams, this);
+                }
             }
-        }
-
-        // Silence
-        {
-            bool silent = audioAnalyzers[i]->getIsSilent();
-            string silentOutput = silent ? "YES" : "NO";
-            cout << "DV" << silenceParams.deviceID << " CH" << silenceParams.channel << " Is silent? " << silentOutput << endl;
         }
     }
 }

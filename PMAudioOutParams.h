@@ -36,8 +36,6 @@ struct onsetParams : public baseAudioInParams
 
 struct silenceParams : public baseAudioInParams
 {
-    bool started;
-    bool ended;
 };
 
 

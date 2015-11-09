@@ -61,7 +61,7 @@ public:
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;
     ofEvent<onsetParams>        eventOnsetDetected;
-    ofEvent<void>               eventSilenceDetected;
+    ofEvent<silenceParams>      eventSilenceStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
 
 private:
@@ -85,6 +85,7 @@ private:
     // Silence
     bool                        useSilence;
     int                         silenceThreshold;
+    bool                        wasSilent;
 
     // Internals
     ofSoundStream               soundStream;
