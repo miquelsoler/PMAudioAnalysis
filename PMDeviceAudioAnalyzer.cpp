@@ -10,7 +10,6 @@
 #include "PMAudioAnalyzerConstants.h"
 
 static const float SMOOTHING_INITIALVALUE = -999.0f;
-static const float SMOOTHING_DELTA = 0.015;
 
 PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
@@ -178,6 +177,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
                 if ((currentPitchFreq > AUDIOANALYZER_PITCH_MINFREQ) && (currentPitchFreq < AUDIOANALYZER_PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
                 {
+                    cout << "New pitch" << endl;
                     if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
                     {
                         smoothedPitchFreq = currentPitchFreq;
