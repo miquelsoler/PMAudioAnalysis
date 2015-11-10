@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include "ofMain.h"
 #include "ofxAudioAnalyzer.h"
-#include "PMAudioOutParams.h"
+#include "PMAudioInParams.h"
 
 typedef enum
 {
@@ -89,8 +89,12 @@ private:
     bool                        wasSilent;
 
     // Internals
+
     ofSoundStream               soundStream;
     vector<ofxAudioAnalyzer *>  audioAnalyzers;
+
+    // Smoothing
+    vector<float>               oldPitchFreqValues;
 
     float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
 

@@ -6,8 +6,14 @@
 #define PMCONCERTPARAULES_PMAUDIOANALYZERCONSTANTS_H
 
 // Pitch
-static const float PITCH_MINFREQ = 100.0f;
-static const float PITCH_MAXFREQ = 800.0f;
+static const float AUDIOANALYZER_PITCH_MINFREQ = 100.0f;
+static const float AUDIOANALYZER_PITCH_MAXFREQ = 700.0f;
 
+// Energy
+static const float AUDIOANALYZER_ENERGY_MIN = 0.0f;
+static const float AUDIOANALYZER_ENERGY_MAX = 1.0f;
+
+// Silence
+static const float AUDIOANALYZER_SILENCE_THRESHOLD = -45.0f;
 
 #endif //PMCONCERTPARAULES_PMAUDIOANALYZERCONSTANTS_H

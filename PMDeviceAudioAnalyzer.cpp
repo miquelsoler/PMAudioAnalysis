@@ -9,6 +9,9 @@
 #include "PMDeviceAudioAnalyzer.hpp"
 #include "PMAudioAnalyzerConstants.h"
 
+static const float SMOOTHING_INITIALVALUE = -999.0f;
+static const float SMOOTHING_DELTA = 0.015;
+
 PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
@@ -80,6 +83,14 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
     }
 
     wasSilent = false;
+
+    if (!oldPitchFreqValues.empty())
+        oldPitchFreqValues.clear();
+
+    oldPitchFreqValues.reserve((unsigned long)numUsedChannels);
+    for (int i=0; i<numUsedChannels; ++i)
+        oldPitchFreqValues[i] = SMOOTHING_INITIALVALUE;
+
     isSetup = true;
 }
 
@@ -112,9 +123,6 @@ void PMDeviceAudioAnalyzer::clear()
 
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
-    float pitchFreq;
-
-//    cout << "audioIn" << endl;
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
     // Parse input array
@@ -123,7 +131,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             buffers[i][j] = input[i + (nChannels * j)];
 
     // Init audio event params
-
     pitchParams pitchParams;
     pitchParams.deviceID = deviceID;
     silenceParams silenceParams;
@@ -149,18 +156,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         {
             wasSilent = isSilent;
             silenceParams.channel = channel;
-//            string silentOutput = isSilent ? "YES" : "NO";
-//            cout << "DV" << silenceParams.deviceID << " CH" << silenceParams.channel << " Is silent? " << silentOutput << endl;
+            silenceParams.isSilent = isSilent;
             ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
         }
-
-        // Pitch salience
-//        {
-//            if (silenceParams.deviceID == 0)
-//                cout << "Pitch conf: " << audioAnalyzers[i]->getPitchConf() << endl;
-//        }
-
-//        cout << "Energy: " << audioAnalyzers[i]->getEnergy() << " \t" << "Power: " << audioAnalyzers[i]->getPower() << endl;
 
         // Process only when no silence detected
         if (!isSilent)
@@ -174,11 +172,24 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
             // Pitch
             {
-                pitchFreq = audioAnalyzers[i]->getPitchFreq();
-                if ((pitchFreq > PITCH_MINFREQ) && (pitchFreq < PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
+                float smoothedPitchFreq, currentPitchFreq;
+
+                currentPitchFreq = audioAnalyzers[i]->getPitchFreq();
+
+                if ((currentPitchFreq > AUDIOANALYZER_PITCH_MINFREQ) && (currentPitchFreq < AUDIOANALYZER_PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
                 {
+                    if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
+                    {
+                        smoothedPitchFreq = currentPitchFreq;
+                    } else {
+                        float delta = SMOOTHING_DELTA;
+                        smoothedPitchFreq = (currentPitchFreq * delta) + (oldPitchFreqValues[i] * (1.0f - delta));
+                    }
+
+                    oldPitchFreqValues[i] = smoothedPitchFreq;
+
                     pitchParams.channel = channel;
-                    pitchParams.freq = audioAnalyzers[i]->getPitchFreq();
+                    pitchParams.freq = smoothedPitchFreq;
                     pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
                     pitchParams.midiNote = 0;
                     pitchParams.midiNoteNoOctave = 0;
@@ -198,12 +209,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             {
                 if (audioAnalyzers[i]->getIsOnset()) {
                     onsetParams.channel = channel;
-
-//                cout << "DV" << onsetParams.deviceID << " CH" << onsetParams.channel << " Onset -"
-//                        << " HFC:" << audioAnalyzers[i]->getOnsetHfc()
-//                        << " Complex:" << audioAnalyzers[i]->getOnsetHfc()
-//                        << " Flux:" << audioAnalyzers[i]->getOnsetFlux()
-//                        << endl;
                     ofNotifyEvent(eventOnsetDetected, onsetParams, this);
                 }
             }
