@@ -60,8 +60,9 @@ public:
 
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;
-    ofEvent<onsetParams>        eventOnsetDetected;
     ofEvent<silenceParams>      eventSilenceStateChanged;
+    ofEvent<energyParams>       eventEnergyChanged;
+    ofEvent<onsetParams>        eventOnsetDetected;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
 
 private:

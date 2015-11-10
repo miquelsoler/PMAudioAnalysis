@@ -126,15 +126,14 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
     pitchParams pitchParams;
     pitchParams.deviceID = deviceID;
-
-    onsetParams onsetParams;
-    onsetParams.deviceID = deviceID;
-
-    freqBandsParams freqBandsParams;
-    freqBandsParams.deviceID = deviceID;
-
     silenceParams silenceParams;
     silenceParams.deviceID = deviceID;
+    energyParams energyParams;
+    energyParams.deviceID = deviceID;
+    onsetParams onsetParams;
+    onsetParams.deviceID = deviceID;
+    freqBandsParams freqBandsParams;
+    freqBandsParams.deviceID = deviceID;
 
     for (int i=0; i<numUsedChannels; ++i)
     {
@@ -155,9 +154,24 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
         }
 
+        // Pitch salience
+//        {
+//            if (silenceParams.deviceID == 0)
+//                cout << "Pitch conf: " << audioAnalyzers[i]->getPitchConf() << endl;
+//        }
+
+//        cout << "Energy: " << audioAnalyzers[i]->getEnergy() << " \t" << "Power: " << audioAnalyzers[i]->getPower() << endl;
+
         // Process only when no silence detected
         if (!isSilent)
         {
+            // Energy
+            {
+                energyParams.channel = channel;
+                energyParams.energy = audioAnalyzers[i]->getEnergy();
+                ofNotifyEvent(eventEnergyChanged, energyParams, this);
+            }
+
             // Pitch
             {
                 pitchFreq = audioAnalyzers[i]->getPitchFreq();

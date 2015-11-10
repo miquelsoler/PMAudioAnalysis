@@ -24,6 +24,15 @@ struct pitchParams : public baseAudioInParams
     float midiNoteNoOctave;
 };
 
+struct energyParams : public baseAudioInParams
+{
+    float energy;
+};
+
+struct silenceParams : public baseAudioInParams
+{
+};
+
 struct freqBandsParams : public baseAudioInParams
 {
     float *melBands;
@@ -31,10 +40,6 @@ struct freqBandsParams : public baseAudioInParams
 };
 
 struct onsetParams : public baseAudioInParams
-{
-};
-
-struct silenceParams : public baseAudioInParams
 {
 };
 
