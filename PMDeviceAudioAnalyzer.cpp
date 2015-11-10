@@ -177,7 +177,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
                 if ((currentPitchFreq > AUDIOANALYZER_PITCH_MINFREQ) && (currentPitchFreq < AUDIOANALYZER_PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
                 {
-                    cout << "New pitch" << endl;
                     if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
                     {
                         smoothedPitchFreq = currentPitchFreq;
