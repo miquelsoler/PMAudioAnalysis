@@ -8,13 +8,15 @@
 
 #include "PMAudioAnalyzer.hpp"
 
-void PMAudioAnalyzer::init(bool _useMelBands, int _numMelBands, bool _useSilence, int _silenceThreshold)
+void PMAudioAnalyzer::init(bool _useMelBands, int _numMelBands,
+        bool _useSilence, int _silenceThreshold, unsigned int _silenceQueueLength)
 {
     useMelBands = _useMelBands;
     numMelBands = useMelBands ? _numMelBands : 0;
 
     useSilence = _useSilence;
     silenceThreshold = useSilence ? _silenceThreshold : 0;
+    silenceQueueLength = _silenceQueueLength;
 }
 
 PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
@@ -24,7 +26,7 @@ PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(int deviceID, int
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
     deviceAudioAnalyzer->setup(channelMode, channelNumber,
             useMelBands, numMelBands,
-            useSilence, silenceThreshold);
+            useSilence, silenceThreshold, silenceQueueLength);
 
     deviceAudioAnalyzers.push_back(deviceAudioAnalyzer);
 

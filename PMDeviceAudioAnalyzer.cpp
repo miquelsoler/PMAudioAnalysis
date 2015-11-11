@@ -39,9 +39,9 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
     audioAnalyzers.clear();
 }
 
-void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNumber,
+void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         bool _useMelBands, int _numMelBands,
-        bool _useSilence, int _silenceThreshold)
+        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength)
 {
     if (isSetup) return;
 
@@ -55,7 +55,6 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
 
     // Silence
     useSilence = _useSilence;
-    silenceThreshold = _silenceThreshold;
 
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
@@ -75,8 +74,7 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, int _channelNu
         ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
         analyzer->setup(bufferSize, sampleRate,
                 useMelBands, numMelBands,
-                useSilence, silenceThreshold
-        );
+                useSilence, silenceThreshold, silenceQueueLength);
 
         audioAnalyzers.push_back(analyzer);
     }
