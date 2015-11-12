@@ -17,7 +17,7 @@ static const float AUDIOANALYZER_ENERGY_MAX = 1.0f;
 
 // Silence
 static const int AUDIOANALYZER_SILENCE_THRESHOLD = -45;
-static const unsigned int AUDIOANALYZER_SILENCE_QUEUELENGTH = 10;
+static const unsigned int AUDIOANALYZER_SILENCE_QUEUELENGTH = 30;
 
 // Smoothing
 static const float SMOOTHING_DELTA = 0.75f;
