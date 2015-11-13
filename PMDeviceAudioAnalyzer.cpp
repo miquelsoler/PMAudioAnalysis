@@ -7,7 +7,6 @@
 //
 
 #include "PMDeviceAudioAnalyzer.hpp"
-#include "PMAudioAnalyzerConstants.h"
 
 static const float SMOOTHING_INITIALVALUE = -999.0f;
 
@@ -41,22 +40,39 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 
 void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         bool _useMelBands, int _numMelBands,
-        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength)
+        int _minPitchFreq, int _maxPitchFreq,
+        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength, float _smoothingDelta)
 {
     if (isSetup) return;
 
     // Channels
     channelMode = _channelMode;
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
+    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+
 
     // Mel bands
     useMelBands = _useMelBands;
     numMelBands = useMelBands ? _numMelBands : 0;
 
+    // Pitch
+    minPitchFreq = _minPitchFreq;
+    maxPitchFreq = _maxPitchFreq;
+
     // Silence
     useSilence = _useSilence;
+    wasSilent = false;
 
-    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+    // Smoothing
+
+    smoothingDelta = _smoothingDelta;
+
+    if (!oldPitchFreqValues.empty())
+        oldPitchFreqValues.clear();
+
+    oldPitchFreqValues.reserve((unsigned long)numUsedChannels);
+    for (int i=0; i<numUsedChannels; ++i)
+        oldPitchFreqValues[i] = SMOOTHING_INITIALVALUE;
 
     // Creation of audio in buffers
     // Buffer matrix:
@@ -78,15 +94,6 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, unsigned int _
 
         audioAnalyzers.push_back(analyzer);
     }
-
-    wasSilent = false;
-
-    if (!oldPitchFreqValues.empty())
-        oldPitchFreqValues.clear();
-
-    oldPitchFreqValues.reserve((unsigned long)numUsedChannels);
-    for (int i=0; i<numUsedChannels; ++i)
-        oldPitchFreqValues[i] = SMOOTHING_INITIALVALUE;
 
     isSetup = true;
 }
@@ -173,14 +180,13 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
                 currentPitchFreq = audioAnalyzers[i]->getPitchFreq();
 
-                if ((currentPitchFreq > AUDIOANALYZER_PITCH_MINFREQ) && (currentPitchFreq < AUDIOANALYZER_PITCH_MAXFREQ)) // Skip ultra high or ultra low pitch frequencies
+                if ((currentPitchFreq > minPitchFreq) && (currentPitchFreq < maxPitchFreq)) // Skip ultra high or ultra low pitch frequencies
                 {
                     if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
                     {
                         smoothedPitchFreq = currentPitchFreq;
                     } else {
-                        float delta = SMOOTHING_DELTA;
-                        smoothedPitchFreq = (currentPitchFreq * delta) + (oldPitchFreqValues[i] * (1.0f - delta));
+                        smoothedPitchFreq = (currentPitchFreq * smoothingDelta) + (oldPitchFreqValues[i] * (1.0f - smoothingDelta));
                     }
 
                     oldPitchFreqValues[i] = smoothedPitchFreq;

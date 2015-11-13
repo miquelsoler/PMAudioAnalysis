@@ -28,7 +28,9 @@ public:
     }
 
     void init(bool useMelBands, int numMelBands,
-            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength);
+            float minPitchFreq, float maxPitchFreq,
+            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
+            float smoothingDelta);
 
     PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
@@ -46,13 +48,20 @@ public:
 private:
 
     // Mel Bands
-    bool useMelBands;
-    int numMelBands;
+    bool            useMelBands;
+    int             numMelBands;
+
+    // Pitch
+    float           minPitchFreq;
+    float           maxPitchFreq;
 
     // Silence
-    bool useSilence;
-    int silenceThreshold;
-    unsigned int silenceQueueLength;
+    bool            useSilence;
+    int             silenceThreshold;
+    unsigned int    silenceQueueLength;
+
+    // Smoothing
+    float           smoothingDelta;
 
     vector<PMDeviceAudioAnalyzer *> deviceAudioAnalyzers;
 };

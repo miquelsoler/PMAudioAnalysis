@@ -46,7 +46,8 @@ public:
      */
     void setup(PMDAA_ChannelMode channelMode, unsigned int channelNumber,
             bool useMelBands, int numMelBands,
-            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength);
+            int minPitchFreq, int maxPitchFreq,
+            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength, float smoothingDelta);
 
     void start();
     void stop();
@@ -83,17 +84,23 @@ private:
     bool                        useMelBands;
     int                         numMelBands;
 
+    // Pitch
+    float                       minPitchFreq;
+    float                       maxPitchFreq;
+
     // Silence
     bool                        useSilence;
     bool                        wasSilent;
+
+    // Smoothing
+    float                       smoothingDelta;
+    vector<float>               oldPitchFreqValues;
 
     // Internals
 
     ofSoundStream               soundStream;
     vector<ofxAudioAnalyzer *>  audioAnalyzers;
 
-    // Smoothing
-    vector<float>               oldPitchFreqValues;
 
     float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
 
