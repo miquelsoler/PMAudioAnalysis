@@ -29,7 +29,7 @@ void PMAudioAnalyzer::init(
 
 PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
         int sampleRate, int bufferSize,
-        PMDAA_ChannelMode channelMode, int channelNumber)
+        PMDAA_ChannelMode channelMode, unsigned int channelNumber)
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
     deviceAudioAnalyzer->setup(audioInputIndex,

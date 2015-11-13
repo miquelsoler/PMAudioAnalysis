@@ -69,6 +69,7 @@ public:
 private:
 
     // Setup
+    unsigned int                audioInputIndex;
     int                         deviceID;
     int                         inChannels;
     int                         outChannels;

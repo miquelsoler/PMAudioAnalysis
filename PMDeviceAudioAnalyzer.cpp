@@ -38,12 +38,14 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
     audioAnalyzers.clear();
 }
 
-void PMDeviceAudioAnalyzer::setup(unsigned int audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
+void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         bool _useMelBands, int _numMelBands,
         float _minPitchFreq, float _maxPitchFreq,
         bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength, float _smoothingDelta)
 {
     if (isSetup) return;
+
+    audioInputIndex = _audioInputIndex;
 
     // Channels
     channelMode = _channelMode;
@@ -127,25 +129,29 @@ void PMDeviceAudioAnalyzer::clear()
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
-
-    cout << "numUsedChannels: " << numUsedChannels << endl;
+//    cout << "numUsedChannels: " << numUsedChannels << endl;
 
     // Parse input array
     for (int i=0; i<numUsedChannels; ++i)
         for (int j=0; j<bufferSize; ++j)
             buffers[i][j] = input[i + (nChannels * j)];
 
-    // Init audio event params
+    // Init of audio event params struct
     pitchParams pitchParams;
     pitchParams.deviceID = deviceID;
+    pitchParams.audioInputIndex = audioInputIndex;
     silenceParams silenceParams;
     silenceParams.deviceID = deviceID;
+    silenceParams.audioInputIndex = audioInputIndex;
     energyParams energyParams;
     energyParams.deviceID = deviceID;
+    energyParams.audioInputIndex = audioInputIndex;
     onsetParams onsetParams;
     onsetParams.deviceID = deviceID;
+    onsetParams.audioInputIndex = audioInputIndex;
     freqBandsParams freqBandsParams;
     freqBandsParams.deviceID = deviceID;
+    freqBandsParams.audioInputIndex = audioInputIndex;
 
     for (int i=0; i<numUsedChannels; ++i)
     {

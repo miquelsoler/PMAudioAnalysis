@@ -12,6 +12,7 @@
 
 struct baseAudioInParams
 {
+    unsigned int audioInputIndex;
     int deviceID;
     int channel;
 };
