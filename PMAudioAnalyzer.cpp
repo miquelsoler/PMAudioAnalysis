@@ -8,7 +8,8 @@
 
 #include "PMAudioAnalyzer.hpp"
 
-void PMAudioAnalyzer::init(bool _useMelBands, int _numMelBands,
+void PMAudioAnalyzer::init(
+        bool _useMelBands, int _numMelBands,
         float _minPitchFreq, float _maxPitchFreq,
         bool _useSilence, int _silenceThreshold, unsigned int _silenceQueueLength,
         float _smoothingDelta)
@@ -26,12 +27,13 @@ void PMAudioAnalyzer::init(bool _useMelBands, int _numMelBands,
     smoothingDelta = _smoothingDelta;
 }
 
-PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
+PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
         int sampleRate, int bufferSize,
         PMDAA_ChannelMode channelMode, int channelNumber)
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
-    deviceAudioAnalyzer->setup(channelMode, channelNumber,
+    deviceAudioAnalyzer->setup(audioInputIndex,
+            channelMode, channelNumber,
             useMelBands, numMelBands,
             minPitchFreq, maxPitchFreq,
             useSilence, silenceThreshold, silenceQueueLength, smoothingDelta);

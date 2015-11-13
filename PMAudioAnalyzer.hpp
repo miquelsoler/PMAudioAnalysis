@@ -32,7 +32,7 @@ public:
             bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
             float smoothingDelta);
 
-    PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels,
+    PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
             PMDAA_ChannelMode channelMode, int channelNumber);
 

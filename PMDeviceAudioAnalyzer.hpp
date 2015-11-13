@@ -44,9 +44,9 @@ public:
      * - useMelBands: true if it needs obtaining mel bands
      * - numMelBands: number of mel bands (ignored when useMelBands=false)
      */
-    void setup(PMDAA_ChannelMode channelMode, unsigned int channelNumber,
+    void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
             bool useMelBands, int numMelBands,
-            int minPitchFreq, int maxPitchFreq,
+            float minPitchFreq, float maxPitchFreq,
             bool useSilence, int silenceThreshold, unsigned int silenceQueueLength, float smoothingDelta);
 
     void start();

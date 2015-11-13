@@ -38,9 +38,9 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
     audioAnalyzers.clear();
 }
 
-void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
+void PMDeviceAudioAnalyzer::setup(unsigned int audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         bool _useMelBands, int _numMelBands,
-        int _minPitchFreq, int _maxPitchFreq,
+        float _minPitchFreq, float _maxPitchFreq,
         bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength, float _smoothingDelta)
 {
     if (isSetup) return;
@@ -49,7 +49,6 @@ void PMDeviceAudioAnalyzer::setup(PMDAA_ChannelMode _channelMode, unsigned int _
     channelMode = _channelMode;
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
-
 
     // Mel bands
     useMelBands = _useMelBands;
@@ -128,6 +127,8 @@ void PMDeviceAudioAnalyzer::clear()
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+
+    cout << "numUsedChannels: " << numUsedChannels << endl;
 
     // Parse input array
     for (int i=0; i<numUsedChannels; ++i)
