@@ -56,6 +56,7 @@ public:
 
     void audioIn(float *input, int bufferSize, int nChannels);
 
+    unsigned int getInputIndex() { return audioInputIndex; };
     int getDeviceID() { return deviceID; };
     int getChannelNumber() { return channelNumber; };
 
