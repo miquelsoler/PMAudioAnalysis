@@ -43,6 +43,7 @@ struct freqBandsParams : public baseAudioInParams
 
 struct onsetParams : public baseAudioInParams
 {
+    bool isOnset;
 };
 
 

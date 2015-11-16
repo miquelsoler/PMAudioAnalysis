@@ -39,9 +39,11 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 }
 
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
-        bool _useMelBands, int _numMelBands,
         float _minPitchFreq, float _maxPitchFreq,
-        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength, float _smoothingDelta)
+        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength,
+        bool _useMelBands, int _numMelBands,
+        float _onsetsThreshold, float _onsetsAlpha,
+        float _smoothingDelta)
 {
     if (isSetup) return;
 
@@ -52,10 +54,6 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
 
-    // Mel bands
-    useMelBands = _useMelBands;
-    numMelBands = useMelBands ? _numMelBands : 0;
-
     // Pitch
     minPitchFreq = _minPitchFreq;
     maxPitchFreq = _maxPitchFreq;
@@ -63,6 +61,18 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     // Silence
     useSilence = _useSilence;
     wasSilent = false;
+
+    // Mel bands
+    useMelBands = _useMelBands;
+    numMelBands = useMelBands ? _numMelBands : 0;
+
+    // Onsets
+    onsetsThreshold = _onsetsThreshold;
+    onsetsAlpha = _onsetsAlpha;
+
+    if (!oldOnsetState.empty())
+        oldOnsetState.clear();
+    oldOnsetState.assign(numUsedChannels, false);
 
     // Smoothing
 
@@ -92,6 +102,8 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
         analyzer->setup(bufferSize, sampleRate,
                 useMelBands, numMelBands,
                 useSilence, silenceThreshold, silenceQueueLength);
+        analyzer->setOnsetTreshold(onsetsThreshold);
+        analyzer->setOnsetAlpha(onsetsAlpha);
 
         audioAnalyzers.push_back(analyzer);
     }
@@ -215,11 +227,15 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
             }
 
-            // Onset
+            // Onsets
             {
-                if (audioAnalyzers[i]->getIsOnset()) {
+                bool isOnset = audioAnalyzers[i]->getIsOnset();
+                if (oldOnsetState[i] != isOnset)
+                {
+                    oldOnsetState[i] = isOnset;
                     onsetParams.channel = channel;
-                    ofNotifyEvent(eventOnsetDetected, onsetParams, this);
+                    onsetParams.isOnset = isOnset;
+                    ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
                 }
             }
         }

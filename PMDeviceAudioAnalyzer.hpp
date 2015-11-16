@@ -45,9 +45,11 @@ public:
      * - numMelBands: number of mel bands (ignored when useMelBands=false)
      */
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
-            bool useMelBands, int numMelBands,
             float minPitchFreq, float maxPitchFreq,
-            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength, float smoothingDelta);
+            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
+            bool useMelBands, int numMelBands,
+            float onsetsThreshold, float onsetsAlpha,
+            float smoothingDelta);
 
     void start();
     void stop();
@@ -64,7 +66,7 @@ public:
     ofEvent<pitchParams>        eventPitchChanged;
     ofEvent<silenceParams>      eventSilenceStateChanged;
     ofEvent<energyParams>       eventEnergyChanged;
-    ofEvent<onsetParams>        eventOnsetDetected;
+    ofEvent<onsetParams> eventOnsetStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
 
 private:
@@ -82,10 +84,6 @@ private:
     PMDAA_ChannelMode           channelMode;
     int                         channelNumber;
 
-    // Mel bands
-    bool                        useMelBands;
-    int                         numMelBands;
-
     // Pitch
     float                       minPitchFreq;
     float                       maxPitchFreq;
@@ -93,6 +91,15 @@ private:
     // Silence
     bool                        useSilence;
     bool                        wasSilent;
+
+    // Mel bands
+    bool                        useMelBands;
+    int                         numMelBands;
+
+    // Onsets
+    float                       onsetsThreshold;
+    float                       onsetsAlpha;
+    vector<bool>                oldOnsetState;
 
     // Smoothing
     float                       smoothingDelta;

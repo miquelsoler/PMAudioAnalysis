@@ -8,15 +8,12 @@
 
 #include "PMAudioAnalyzer.hpp"
 
-void PMAudioAnalyzer::init(
-        bool _useMelBands, int _numMelBands,
-        float _minPitchFreq, float _maxPitchFreq,
+void PMAudioAnalyzer::init(float _minPitchFreq, float _maxPitchFreq,
         bool _useSilence, int _silenceThreshold, unsigned int _silenceQueueLength,
+        bool _useMelBands, int _numMelBands,
+        float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta)
 {
-    useMelBands = _useMelBands;
-    numMelBands = useMelBands ? _numMelBands : 0;
-
     minPitchFreq = _minPitchFreq;
     maxPitchFreq = _maxPitchFreq;
 
@@ -24,19 +21,27 @@ void PMAudioAnalyzer::init(
     silenceThreshold = useSilence ? _silenceThreshold : 0;
     silenceQueueLength = _silenceQueueLength;
 
+    useMelBands = _useMelBands;
+    numMelBands = useMelBands ? _numMelBands : 0;
+
+    onsetsThreshold = _onsetsThreshold;
+    onsetsAlpha = _onsetsAlpha;
+
     smoothingDelta = _smoothingDelta;
 }
 
-PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
-        int sampleRate, int bufferSize,
+PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(
+        unsigned int audioInputIndex,
+        int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize,
         PMDAA_ChannelMode channelMode, unsigned int channelNumber)
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
-    deviceAudioAnalyzer->setup(audioInputIndex,
-            channelMode, channelNumber,
-            useMelBands, numMelBands,
+    deviceAudioAnalyzer->setup(audioInputIndex, channelMode, channelNumber,
             minPitchFreq, maxPitchFreq,
-            useSilence, silenceThreshold, silenceQueueLength, smoothingDelta);
+            useSilence, silenceThreshold, silenceQueueLength,
+            useMelBands, numMelBands,
+            onsetsThreshold, onsetsAlpha,
+            smoothingDelta);
 
     deviceAudioAnalyzers.push_back(deviceAudioAnalyzer);
 
