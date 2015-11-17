@@ -23,9 +23,8 @@ PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int
 //    numBuffers = _numBuffers;
     numBuffers = bufferSize/64;
 
-    soundStream.printDeviceList();
-
     soundStream.setDeviceID(deviceID);
+    soundStream.printDeviceList();
 
     isSetup = false;
 }
@@ -129,21 +128,6 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
         vAubioMelBands.push_back(aubioBands);
     }
 
-//    for (int i=0; i<numUsedChannels; ++i)
-//    {
-//        ofxAubioPitch aubioPitch;
-//        aubioPitch.setup();
-//        vAubioPitches.push_back(aubioPitch);
-//
-//        ofxAubioOnset aubioOnset;
-//        aubioOnset.setup();
-//        vAubioOnsets.push_back(aubioOnset);
-//
-//        ofxAubioMelBands aubioMelBands;
-//        aubioMelBands.setup();
-//        vAubioMelBands.push_back(aubioMelBands);
-//    }
-
     isSetup = true;
 }
 
@@ -195,7 +179,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
 
-    for (int i =0; i <numUsedChannels; ++i)
+    for (unsigned int i =0; i <numUsedChannels; ++i)
     {
         // Compute aubio
         {
@@ -207,7 +191,8 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
         float currentMidiNote = vAubioPitches[i]->latestPitch;
-        bool isSilent = (currentMidiNote == 0);
+//        bool isSilent = (currentMidiNote == 0);
+        bool isSilent = (getEnergy(i) < 0.1);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
