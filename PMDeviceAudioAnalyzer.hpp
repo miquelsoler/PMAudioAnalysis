@@ -67,7 +67,7 @@ public:
     ofEvent<pitchParams>        eventPitchChanged;
     ofEvent<silenceParams>      eventSilenceStateChanged;
     ofEvent<energyParams>       eventEnergyChanged;
-    ofEvent<onsetParams> eventOnsetStateChanged;
+    ofEvent<onsetParams>        eventOnsetStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
 
 private:
@@ -119,6 +119,8 @@ private:
 //    float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
 
     bool                    isSetup;
+
+    float getEnergy(unsigned int channel);
 };
 
 #endif /* PMDeviceAudioAnalyzer_h */

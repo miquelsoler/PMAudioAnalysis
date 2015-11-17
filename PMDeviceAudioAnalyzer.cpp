@@ -10,6 +10,9 @@
 
 static const float SMOOTHING_INITIALVALUE = -999.0f;
 
+// TODO: Should be able to change to a custom number
+static const int NUM_MELBANDS = 40;
+
 PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int _outChannels, int _sampleRate, int _bufferSize)
 {
     deviceID = _deviceID;
@@ -192,24 +195,19 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
 
-    for (int i=0; i<numUsedChannels; ++i)
+    for (int i =0; i <numUsedChannels; ++i)
     {
-        vAubioPitches[i]->audioIn(input, bufferSize, nChannels);
-        vAubioOnsets[i]->audioIn(input, bufferSize, nChannels);
-        vAubioMelBands[i]->audioIn(input, bufferSize, nChannels);
+        // Compute aubio
+        {
+            vAubioPitches[i]->audioIn(input, bufferSize, nChannels);
+            vAubioOnsets[i]->audioIn(input, bufferSize, nChannels);
+            vAubioMelBands[i]->audioIn(input, bufferSize, nChannels);
+        }
 
-//        if (vAubioOnsets[i]->received())
-//            cout << "Onset (" << i << ") received" << endl;
-//        cout << "Pitch (" << i << "): " << vAubioPitches[i]->latestPitch << endl;
-    }
-
-    for (int i=0; i<numUsedChannels; ++i)
-    {
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         bool isSilent = (currentMidiNote == 0);
-        cout << "Is silent? " << isSilent << endl;
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
@@ -242,30 +240,14 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                         pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                         ofNotifyEvent(eventPitchChanged, pitchParams, this);
                     }
-
-//                float smoothedPitchFreq, currentPitchFreq;
-//
-//                currentPitchFreq = vAubioPitches[i]->getPitchFreq();
-//
-//                if ((currentPitchFreq > minPitchFreq) && (currentPitchFreq < maxPitchFreq)) // Skip ultra high or ultra low pitch frequencies
-//                {
-//                    if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
-//                    {
-//                        smoothedPitchFreq = currentPitchFreq;
-//                    } else {
-//                        smoothedPitchFreq = (currentPitchFreq * smoothingDelta) + (oldPitchFreqValues[i] * (1.0f - smoothingDelta));
-//                    }
-//
-//                    oldPitchFreqValues[i] = smoothedPitchFreq;
-//
-//                    pitchParams.channel = channel;
-//                    pitchParams.freq = smoothedPitchFreq;
-//                    pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
-//                    pitchParams.midiNote = 0;
-//                    pitchParams.midiNoteNoOctave = 0;
-//                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
-//                }
                 }
+            }
+
+            // Mel bands
+            {
+                energyParams.channel = channel;
+                energyParams.energy = getEnergy(channel);
+                ofNotifyEvent(eventEnergyChanged, energyParams, this);
             }
         }
     }
@@ -371,4 +353,18 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 //            }
 //        }
 //    }
+}
+
+float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
+{
+    float *energies = vAubioMelBands[channel]->energies;
+
+    float result = 0.0f;
+
+    for (int i=0; i<NUM_MELBANDS; i++)
+    {
+        if (energies[i] > result)
+            result = energies[i];
+    }
+    return result;
 }
