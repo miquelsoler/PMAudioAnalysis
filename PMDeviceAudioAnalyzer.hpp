@@ -13,7 +13,8 @@
 
 #include <stdio.h>
 #include "ofMain.h"
-#include "ofxAudioAnalyzer.h"
+//#include "ofxAudioAnalyzer.h"
+#include "ofxAubio.h"
 #include "PMAudioInParams.h"
 
 typedef enum
@@ -45,7 +46,7 @@ public:
      * - numMelBands: number of mel bands (ignored when useMelBands=false)
      */
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
-            float minPitchFreq, float maxPitchFreq,
+            float minPitchMidiNote, float maxPitchMidiNote,
             bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
             bool useMelBands, int numMelBands,
             float onsetsThreshold, float onsetsAlpha,
@@ -85,8 +86,8 @@ private:
     int                         channelNumber;
 
     // Pitch
-    float                       minPitchFreq;
-    float                       maxPitchFreq;
+    float                       minPitchMidiNote;
+    float                       maxPitchMidiNote;
 
     // Silence
     bool                        useSilence;
@@ -103,15 +104,19 @@ private:
 
     // Smoothing
     float                       smoothingDelta;
-    vector<float>               oldPitchFreqValues;
+    vector<float>               oldMidiNotesValues;
 
-    // Internals
+    // Sound analysis
 
     ofSoundStream               soundStream;
-    vector<ofxAudioAnalyzer *>  audioAnalyzers;
 
+//    ofxAubioPitch               aubioPitch;
+    vector<ofxAubioPitch *>     vAubioPitches;
+    vector<ofxAubioOnset *>     vAubioOnsets;
+    vector<ofxAubioMelBands *>  vAubioMelBands;
 
-    float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
+//    vector<ofxAudioAnalyzer *>  audioAnalyzers;
+//    float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
 
     bool                    isSetup;
 };

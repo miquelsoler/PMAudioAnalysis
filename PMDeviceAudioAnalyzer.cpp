@@ -29,17 +29,17 @@ PMDeviceAudioAnalyzer::PMDeviceAudioAnalyzer(int _deviceID, int _inChannels, int
 
 PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 {
-    for (int i=0; i<inChannels; ++i)
-        delete buffers[i];
-    delete []buffers;
+//    for (int i=0; i<inChannels; ++i)
+//        delete buffers[i];
+//    delete []buffers;
 
-    for (unsigned int i=0; i<audioAnalyzers.size(); ++i)
-        delete audioAnalyzers[i];
-    audioAnalyzers.clear();
+//    for (unsigned int i=0; i<audioAnalyzers.size(); ++i)
+//        delete audioAnalyzers[i];
+//    audioAnalyzers.clear();
 }
 
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
-        float _minPitchFreq, float _maxPitchFreq,
+        float _minPitchMidiNote, float _maxPitchMidiNote,
         bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength,
         bool _useMelBands, int _numMelBands,
         float _onsetsThreshold, float _onsetsAlpha,
@@ -52,11 +52,11 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     // Channels
     channelMode = _channelMode;
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
-    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+    unsigned int numUsedChannels = (unsigned int)((channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels);
 
     // Pitch
-    minPitchFreq = _minPitchFreq;
-    maxPitchFreq = _maxPitchFreq;
+    minPitchMidiNote = _minPitchMidiNote;
+    maxPitchMidiNote = _maxPitchMidiNote;
 
     // Silence
     useSilence = _useSilence;
@@ -78,35 +78,68 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
 
     smoothingDelta = _smoothingDelta;
 
-    if (!oldPitchFreqValues.empty())
-        oldPitchFreqValues.clear();
+    if (!oldMidiNotesValues.empty())
+        oldMidiNotesValues.clear();
 
-    oldPitchFreqValues.reserve((unsigned long)numUsedChannels);
+    oldMidiNotesValues.reserve((unsigned long)numUsedChannels);
     for (int i=0; i<numUsedChannels; ++i)
-        oldPitchFreqValues[i] = SMOOTHING_INITIALVALUE;
+        oldMidiNotesValues[i] = SMOOTHING_INITIALVALUE;
 
-    // Creation of audio in buffers
-    // Buffer matrix:
-    // - Rows: channels
-    // - Cols: channel buffer
+//    // Creation of audio in buffers
+//    // Buffer matrix:
+//    // - Rows: channels
+//    // - Cols: channel buffer
+//
+//    buffers = new float *[numUsedChannels];
+//    for (int i=0; i<numUsedChannels; ++i)
+//        buffers[i] = new float[bufferSize];
+//
+//    // ofxAudioAnalyzer(s) setup
+//
+//    for (int i=0; i<numUsedChannels; ++i)
+//    {
+//        ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
+//        analyzer->setup(bufferSize, sampleRate,
+//                useMelBands, numMelBands,
+//                useSilence, silenceThreshold, silenceQueueLength);
+//        analyzer->setOnsetTreshold(onsetsThreshold);
+//        analyzer->setOnsetAlpha(onsetsAlpha);
+//
+//        audioAnalyzers.push_back(analyzer);
+//    }
 
-    buffers = new float *[numUsedChannels];
-    for (int i=0; i<numUsedChannels; ++i)
-        buffers[i] = new float[bufferSize];
-
-    // ofxAudioAnalyzer(s) setup
+//    aubioPitch.setup();
 
     for (int i=0; i<numUsedChannels; ++i)
     {
-        ofxAudioAnalyzer *analyzer = new ofxAudioAnalyzer();
-        analyzer->setup(bufferSize, sampleRate,
-                useMelBands, numMelBands,
-                useSilence, silenceThreshold, silenceQueueLength);
-        analyzer->setOnsetTreshold(onsetsThreshold);
-        analyzer->setOnsetAlpha(onsetsAlpha);
+        ofxAubioPitch *aubioPitch = new ofxAubioPitch();
+        aubioPitch->setup();
+        vAubioPitches.push_back(aubioPitch);
 
-        audioAnalyzers.push_back(analyzer);
+        ofxAubioOnset *aubioOnset = new ofxAubioOnset();
+        aubioOnset->setup();
+        aubioOnset->setThreshold(onsetsThreshold);
+        vAubioOnsets.push_back(aubioOnset);
+
+        ofxAubioMelBands *aubioBands = new ofxAubioMelBands();
+        aubioBands->setup();
+        vAubioMelBands.push_back(aubioBands);
     }
+
+//    for (int i=0; i<numUsedChannels; ++i)
+//    {
+//        ofxAubioPitch aubioPitch;
+//        aubioPitch.setup();
+//        vAubioPitches.push_back(aubioPitch);
+//
+//        ofxAubioOnset aubioOnset;
+//        aubioOnset.setup();
+//        vAubioOnsets.push_back(aubioOnset);
+//
+//        ofxAubioMelBands aubioMelBands;
+//        aubioMelBands.setup();
+//        vAubioMelBands.push_back(aubioMelBands);
+//    }
 
     isSetup = true;
 }
@@ -128,25 +161,19 @@ void PMDeviceAudioAnalyzer::clear()
 {
     stop();
 
-    // Delete internal audio analyzer stuff
-    for (int i=0; i<audioAnalyzers.size(); ++i)
-        audioAnalyzers[i]->exit();
-
-    // Erase all audio analyzers from vector
-    for (int i=0; i<audioAnalyzers.size(); ++i)
-        delete audioAnalyzers[i];
-    audioAnalyzers.clear();
+//    // Delete internal audio analyzer stuff
+//    for (int i=0; i<audioAnalyzers.size(); ++i)
+//        audioAnalyzers[i]->exit();
+//
+//    // Erase all audio analyzers from vector
+//    for (int i=0; i<audioAnalyzers.size(); ++i)
+//        delete audioAnalyzers[i];
+//    audioAnalyzers.clear();
 }
 
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
-//    cout << "numUsedChannels: " << numUsedChannels << endl;
-
-    // Parse input array
-    for (int i=0; i<numUsedChannels; ++i)
-        for (int j=0; j<bufferSize; ++j)
-            buffers[i][j] = input[i + (nChannels * j)];
 
     // Init of audio event params struct
     pitchParams pitchParams;
@@ -167,77 +194,181 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
     for (int i=0; i<numUsedChannels; ++i)
     {
-        audioAnalyzers[i]->analyze(buffers[i], bufferSize);
+        vAubioPitches[i]->audioIn(input, bufferSize, nChannels);
+        vAubioOnsets[i]->audioIn(input, bufferSize, nChannels);
+        vAubioMelBands[i]->audioIn(input, bufferSize, nChannels);
 
+//        if (vAubioOnsets[i]->received())
+//            cout << "Onset (" << i << ") received" << endl;
+//        cout << "Pitch (" << i << "): " << vAubioPitches[i]->latestPitch << endl;
+    }
+
+    for (int i=0; i<numUsedChannels; ++i)
+    {
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
-        bool isSilent = audioAnalyzers[i]->getIsSilent();
+        float currentMidiNote = vAubioPitches[i]->latestPitch;
+        bool isSilent = (currentMidiNote == 0);
+        cout << "Is silent? " << isSilent << endl;
 
         // Silence
-
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
         {
             wasSilent = isSilent;
             silenceParams.channel = channel;
             silenceParams.isSilent = isSilent;
             ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+
         }
 
-        // Process only when no silence detected
         if (!isSilent)
         {
-            // Energy
-            {
-                energyParams.channel = channel;
-                energyParams.energy = audioAnalyzers[i]->getEnergy();
-                ofNotifyEvent(eventEnergyChanged, energyParams, this);
-            }
-
             // Pitch
             {
-                float smoothedPitchFreq, currentPitchFreq;
-
-                currentPitchFreq = audioAnalyzers[i]->getPitchFreq();
-
-                if ((currentPitchFreq > minPitchFreq) && (currentPitchFreq < maxPitchFreq)) // Skip ultra high or ultra low pitch frequencies
+                if (currentMidiNote)
                 {
-                    if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
+                    if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
                     {
-                        smoothedPitchFreq = currentPitchFreq;
-                    } else {
-                        smoothedPitchFreq = (currentPitchFreq * smoothingDelta) + (oldPitchFreqValues[i] * (1.0f - smoothingDelta));
+                        float smoothedMidiNote;
+
+                        if (oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                            smoothedMidiNote = currentMidiNote;
+                        }  else {
+                            smoothedMidiNote = (currentMidiNote * smoothingDelta) + (oldMidiNotesValues[i] * (1.0f - smoothingDelta));
+                        }
+
+                        pitchParams.channel = channel;
+                        pitchParams.midiNote = smoothedMidiNote;
+                        pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
+                        ofNotifyEvent(eventPitchChanged, pitchParams, this);
                     }
 
-                    oldPitchFreqValues[i] = smoothedPitchFreq;
-
-                    pitchParams.channel = channel;
-                    pitchParams.freq = smoothedPitchFreq;
-                    pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
-                    pitchParams.midiNote = 0;
-                    pitchParams.midiNoteNoOctave = 0;
-                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
-                }
-            }
-
-            // Frequency bands
-            {
-                freqBandsParams.channel = channel;
-                freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
-                freqBandsParams.numBands = numMelBands;
-                ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
-            }
-
-            // Onsets
-            {
-                bool isOnset = audioAnalyzers[i]->getIsOnset();
-                if (oldOnsetState[i] != isOnset)
-                {
-                    oldOnsetState[i] = isOnset;
-                    onsetParams.channel = channel;
-                    onsetParams.isOnset = isOnset;
-                    ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
+//                float smoothedPitchFreq, currentPitchFreq;
+//
+//                currentPitchFreq = vAubioPitches[i]->getPitchFreq();
+//
+//                if ((currentPitchFreq > minPitchFreq) && (currentPitchFreq < maxPitchFreq)) // Skip ultra high or ultra low pitch frequencies
+//                {
+//                    if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
+//                    {
+//                        smoothedPitchFreq = currentPitchFreq;
+//                    } else {
+//                        smoothedPitchFreq = (currentPitchFreq * smoothingDelta) + (oldPitchFreqValues[i] * (1.0f - smoothingDelta));
+//                    }
+//
+//                    oldPitchFreqValues[i] = smoothedPitchFreq;
+//
+//                    pitchParams.channel = channel;
+//                    pitchParams.freq = smoothedPitchFreq;
+//                    pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
+//                    pitchParams.midiNote = 0;
+//                    pitchParams.midiNoteNoOctave = 0;
+//                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
+//                }
                 }
             }
         }
     }
+
+
+//    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+////    cout << "numUsedChannels: " << numUsedChannels << endl;
+//
+//    // Parse input array
+//    for (int i=0; i<numUsedChannels; ++i)
+//        for (int j=0; j<bufferSize; ++j)
+//            buffers[i][j] = input[i + (nChannels * j)];
+//
+//    // Init of audio event params struct
+//    pitchParams pitchParams;
+//    pitchParams.deviceID = deviceID;
+//    pitchParams.audioInputIndex = audioInputIndex;
+//    silenceParams silenceParams;
+//    silenceParams.deviceID = deviceID;
+//    silenceParams.audioInputIndex = audioInputIndex;
+//    energyParams energyParams;
+//    energyParams.deviceID = deviceID;
+//    energyParams.audioInputIndex = audioInputIndex;
+//    onsetParams onsetParams;
+//    onsetParams.deviceID = deviceID;
+//    onsetParams.audioInputIndex = audioInputIndex;
+//    freqBandsParams freqBandsParams;
+//    freqBandsParams.deviceID = deviceID;
+//    freqBandsParams.audioInputIndex = audioInputIndex;
+//
+//    for (int i=0; i<numUsedChannels; ++i)
+//    {
+//        audioAnalyzers[i]->analyze(buffers[i], bufferSize);
+//
+//        int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
+//
+//        bool isSilent = audioAnalyzers[i]->getIsSilent();
+//
+//        // Silence
+//
+//        if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
+//        {
+//            wasSilent = isSilent;
+//            silenceParams.channel = channel;
+//            silenceParams.isSilent = isSilent;
+//            ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+//        }
+//
+//        // Process only when no silence detected
+//        if (!isSilent)
+//        {
+//            // Energy
+//            {
+//                energyParams.channel = channel;
+//                energyParams.energy = audioAnalyzers[i]->getEnergy();
+//                ofNotifyEvent(eventEnergyChanged, energyParams, this);
+//            }
+//
+//            // Pitch
+//            {
+//                float smoothedPitchFreq, currentPitchFreq;
+//
+//                currentPitchFreq = audioAnalyzers[i]->getPitchFreq();
+//
+//                if ((currentPitchFreq > minPitchFreq) && (currentPitchFreq < maxPitchFreq)) // Skip ultra high or ultra low pitch frequencies
+//                {
+//                    if (oldPitchFreqValues[i] == SMOOTHING_INITIALVALUE)
+//                    {
+//                        smoothedPitchFreq = currentPitchFreq;
+//                    } else {
+//                        smoothedPitchFreq = (currentPitchFreq * smoothingDelta) + (oldPitchFreqValues[i] * (1.0f - smoothingDelta));
+//                    }
+//
+//                    oldPitchFreqValues[i] = smoothedPitchFreq;
+//
+//                    pitchParams.channel = channel;
+//                    pitchParams.freq = smoothedPitchFreq;
+//                    pitchParams.confidence = audioAnalyzers[i]->getPitchConf();
+//                    pitchParams.midiNote = 0;
+//                    pitchParams.midiNoteNoOctave = 0;
+//                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
+//                }
+//            }
+//
+//            // Frequency bands
+//            {
+//                freqBandsParams.channel = channel;
+//                freqBandsParams.melBands = audioAnalyzers[i]->getMelBands();
+//                freqBandsParams.numBands = numMelBands;
+//                ofNotifyEvent(eventFreqBandsParams, freqBandsParams, this);
+//            }
+//
+//            // Onsets
+//            {
+//                bool isOnset = audioAnalyzers[i]->getIsOnset();
+//                if (oldOnsetState[i] != isOnset)
+//                {
+//                    oldOnsetState[i] = isOnset;
+//                    onsetParams.channel = channel;
+//                    onsetParams.isOnset = isOnset;
+//                    ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
+//                }
+//            }
+//        }
+//    }
 }

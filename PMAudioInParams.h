@@ -19,10 +19,9 @@ struct baseAudioInParams
 
 struct pitchParams : public baseAudioInParams
 {
-    float freq;
+//    float freq;
     float confidence;
     float midiNote;
-    float midiNoteNoOctave;
 };
 
 struct energyParams : public baseAudioInParams
