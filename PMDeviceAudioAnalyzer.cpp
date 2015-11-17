@@ -191,6 +191,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
         float currentMidiNote = vAubioPitches[i]->latestPitch;
+        float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
+        float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
+        cout<<modifiedSmoothingDelta<<endl;
 //        bool isSilent = (currentMidiNote == 0);
         bool isSilent = (getEnergy(i) < 0.1);
 
@@ -217,7 +220,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                         if (oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
                             smoothedMidiNote = currentMidiNote;
                         }  else {
-                            smoothedMidiNote = (currentMidiNote * smoothingDelta) + (oldMidiNotesValues[i] * (1.0f - smoothingDelta));
+                            smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
                         }
 
                         pitchParams.channel = channel;
