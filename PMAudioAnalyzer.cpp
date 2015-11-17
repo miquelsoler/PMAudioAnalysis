@@ -8,21 +8,21 @@
 
 #include "PMAudioAnalyzer.hpp"
 
-void PMAudioAnalyzer::init(float _minPitchFreq, float _maxPitchFreq,
+void PMAudioAnalyzer::init(
+        float _minPitchFreq, float _maxPitchFreq,
+        float _energyThreshold,
         bool _useSilence, int _silenceThreshold, unsigned int _silenceQueueLength,
-        bool _useMelBands, int _numMelBands,
         float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta)
 {
-    minPitchFreq = _minPitchFreq;
-    maxPitchFreq = _maxPitchFreq;
+    minPitchMidiNote = _minPitchFreq;
+    maxPitchMidiNote = _maxPitchFreq;
+
+    energyThreshold = _energyThreshold;
 
     useSilence = _useSilence;
     silenceThreshold = useSilence ? _silenceThreshold : 0;
     silenceQueueLength = _silenceQueueLength;
-
-    useMelBands = _useMelBands;
-    numMelBands = useMelBands ? _numMelBands : 0;
 
     onsetsThreshold = _onsetsThreshold;
     onsetsAlpha = _onsetsAlpha;
@@ -37,9 +37,9 @@ PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
     deviceAudioAnalyzer->setup(audioInputIndex, channelMode, channelNumber,
-            minPitchFreq, maxPitchFreq,
+            minPitchMidiNote, maxPitchMidiNote,
+            energyThreshold,
             useSilence, silenceThreshold, silenceQueueLength,
-            useMelBands, numMelBands,
             onsetsThreshold, onsetsAlpha,
             smoothingDelta);
 

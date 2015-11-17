@@ -42,8 +42,8 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         float _minPitchMidiNote, float _maxPitchMidiNote,
+        float _energyThreshold,
         bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength,
-        bool _useMelBands, int _numMelBands,
         float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta)
 {
@@ -60,13 +60,12 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     minPitchMidiNote = _minPitchMidiNote;
     maxPitchMidiNote = _maxPitchMidiNote;
 
+    // Energy
+    energyThreshold = _energyThreshold;
+
     // Silence
     useSilence = _useSilence;
     wasSilent = false;
-
-    // Mel bands
-    useMelBands = _useMelBands;
-    numMelBands = useMelBands ? _numMelBands : 0;
 
     // Onsets
     onsetsThreshold = _onsetsThreshold;
@@ -191,8 +190,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         int channel = (channelMode == PMDAA_CHANNEL_MONO) ? channelNumber : i;
 
         float currentMidiNote = vAubioPitches[i]->latestPitch;
-//        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getEnergy(i) < 0.1);
+        bool isSilent = (getEnergy(i) < energyThreshold) || (currentMidiNote == 0);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)

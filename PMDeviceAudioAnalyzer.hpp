@@ -47,8 +47,8 @@ public:
      */
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
             float minPitchMidiNote, float maxPitchMidiNote,
+            float energyThreshold,
             bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
-            bool useMelBands, int numMelBands,
             float onsetsThreshold, float onsetsAlpha,
             float smoothingDelta);
 
@@ -89,13 +89,12 @@ private:
     float                       minPitchMidiNote;
     float                       maxPitchMidiNote;
 
+    // Energy
+    float                       energyThreshold;
+
     // Silence
     bool                        useSilence;
     bool                        wasSilent;
-
-    // Mel bands
-    bool                        useMelBands;
-    int                         numMelBands;
 
     // Onsets
     float                       onsetsThreshold;

@@ -28,8 +28,8 @@ public:
     }
 
     void init(float minPitchFreq, float maxPitchFreq,
+            float energyThreshold,
             bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
-            bool useMelBands, int numMelBands,
             float onsetsThreshold, float onsetsAlpha,
             float smoothingDelta);
 
@@ -49,17 +49,16 @@ public:
 private:
 
     // Pitch
-    float           minPitchFreq;
-    float           maxPitchFreq;
+    float           minPitchMidiNote;
+    float           maxPitchMidiNote;
+
+    // Energy
+    float           energyThreshold;
 
     // Silence
     bool            useSilence;
     int             silenceThreshold;
     unsigned int    silenceQueueLength;
-
-    // Mel Bands
-    bool            useMelBands;
-    int             numMelBands;
 
     // Onsets
     float           onsetsThreshold;
