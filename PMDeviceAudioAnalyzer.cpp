@@ -194,7 +194,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
         cout<<modifiedSmoothingDelta<<endl;
 //        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getEnergy(i) < 0.1);
+        bool isSilent = (getEnergy(i) < 0.01);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
