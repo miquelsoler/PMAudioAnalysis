@@ -127,6 +127,10 @@ private:
     void detectedSilence(int channel);
     void updateSilenceTime(int channel);
     void detectedEndSilence(int channel);
+    
+    
+    // sshht
+    void checkShtSound(int channel);
 };
 
 #endif /* PMDeviceAudioAnalyzer_h */

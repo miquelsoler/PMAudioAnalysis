@@ -242,6 +242,11 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 energyParams.energy = getEnergy(channel);
                 ofNotifyEvent(eventEnergyChanged, energyParams, this);
             }
+            
+            // ssshhhht
+            checkShtSound(channel);
+            
+            
         }
 
         bool isOnset = vAubioOnsets[i]->received();
@@ -362,19 +367,12 @@ float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
     float *energies = vAubioMelBands[channel]->energies;
 
     float result = 0.0f;
-    float weightsum = 0.0f;
 
     for (int i=0; i<NUM_MELBANDS; i++)
     {
-        //cout<<energies[i]<<"----";
-        float weight=1;
-        result+=weight*energies[i];
-//        cout<<weight<<"......."<<result<<endl;
-        weightsum+=weight;
-//        if (energies[i] > result)
-//            result = energies[i]; //FIXME canviar l'energia predominant per un canvi d'energies
+        result+=energies[i];
     }
-    result/=weightsum; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
+    result/=NUM_MELBANDS; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
     return result;
 }
 
@@ -411,4 +409,10 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
     isInSilence[channel]=false;
+}
+
+void PMDeviceAudioAnalyzer::checkShtSound(int channel)
+{
+    float *melbands = vAubioMelBands[channel]->energies;
+    
 }
