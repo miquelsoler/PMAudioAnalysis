@@ -82,9 +82,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     if (!oldMidiNotesValues.empty())
         oldMidiNotesValues.clear();
 
-    oldMidiNotesValues.reserve((unsigned long)numUsedChannels);
-    for (int i=0; i<numUsedChannels; ++i)
-        oldMidiNotesValues[i] = SMOOTHING_INITIALVALUE;
+    oldMidiNotesValues.assign(numUsedChannels, SMOOTHING_INITIALVALUE);
 
 //    // Creation of audio in buffers
 //    // Buffer matrix:
