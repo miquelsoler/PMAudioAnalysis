@@ -68,7 +68,12 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     wasSilent = false;
     silenceTimeTreshold=silenceQueueLength;
     isInSilence.resize((unsigned long)numUsedChannels);
-    beginSilenceTime.resize((unsigned long) numUsedChannels);
+    silenceBeginTime.resize((unsigned long) numUsedChannels);
+
+    //sht
+    shtTimeTreshold=150;
+    isShtSounding.resize((unsigned long) numUsedChannels);
+    shtBeginTime.resize((unsigned long)numUsedChannels);
 
     // Onsets
     onsetsThreshold = _onsetsThreshold;
@@ -372,19 +377,20 @@ float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
     {
         result+=energies[i];
     }
+    
     result/=NUM_MELBANDS; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
     return result;
 }
 
 void PMDeviceAudioAnalyzer::detectedSilence(int channel)
 {
-    beginSilenceTime[channel]=ofGetElapsedTimeMillis();
+    silenceBeginTime[channel]=ofGetElapsedTimeMillis();
     isInSilence[channel]=true;
 }
 
 void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
 {
-    float timeOfSilence = ofGetElapsedTimeMillis()-beginSilenceTime[channel];
+    float timeOfSilence = ofGetElapsedTimeMillis()-silenceBeginTime[channel];
     if(timeOfSilence > silenceTimeTreshold){
         silenceParams silenceParams;
         silenceParams.deviceID = deviceID;
@@ -401,7 +407,7 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
     silenceParams silenceParams;
     silenceParams.deviceID = deviceID;
     silenceParams.audioInputIndex = audioInputIndex;
-    float timeOfSilence = ofGetElapsedTimeMillis()-beginSilenceTime[channel];
+    float timeOfSilence = ofGetElapsedTimeMillis()-silenceBeginTime[channel];
     if(timeOfSilence > silenceTimeTreshold){
         silenceParams.channel = channel;
         silenceParams.isSilent = false;
@@ -414,5 +420,36 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
 void PMDeviceAudioAnalyzer::checkShtSound(int channel)
 {
     float *melbands = vAubioMelBands[channel]->energies;
+    float lowBands=0.0f;
+    float highBands=0.0f;
+    for(int i=0; i<NUM_MELBANDS>>2; i++){
+        lowBands+=melbands[i];
+    }
+    lowBands/=(NUM_MELBANDS>>2);
+    for(int i=NUM_MELBANDS>>2; i<NUM_MELBANDS; i++){
+        highBands+=melbands[i];
+    }
+    highBands/=(NUM_MELBANDS-(NUM_MELBANDS>>2));
+    
+    
+    if(highBands > lowBands && !isShtSounding[channel]){
+        shtBeginTime[channel]=ofGetElapsedTimeMillis();
+        isShtSounding[channel]=true;
+    }else if(highBands<lowBands){
+        isShtSounding[channel]=false;
+    }
+    
+    
+    float timeOfSht=ofGetElapsedTimeMillis()-shtBeginTime[channel];
+    if(isShtSounding[channel] &&  timeOfSht > shtTimeTreshold){
+        shtParams shtParams;
+        shtParams.deviceID=deviceID;
+        shtParams.audioInputIndex=audioInputIndex;
+        shtParams.channel=channel;
+        shtParams.time=timeOfSht;
+        ofNotifyEvent(eventShtHappened, shtParams, this);
+        cout<<"-------------------SHT-----------------"<<endl;
+    }
+//    cout<<lowBands<<"------"<<highBands<<endl;
     
 }

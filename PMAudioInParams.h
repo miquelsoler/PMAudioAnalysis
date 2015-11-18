@@ -46,5 +46,10 @@ struct onsetParams : public baseAudioInParams
     bool isOnset;
 };
 
+struct shtParams : public baseAudioInParams
+{
+    float time;
+};
+
 
 #endif /* PMAudioOutParams_h */

@@ -69,6 +69,7 @@ public:
     ofEvent<energyParams>       eventEnergyChanged;
     ofEvent<onsetParams>        eventOnsetStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
+    ofEvent<shtParams>          eventShtHappened;
 
 private:
 
@@ -120,7 +121,7 @@ private:
     bool                    isSetup;
     
     vector<bool>                isInSilence;
-    vector<float>               beginSilenceTime;
+    vector<float>               silenceBeginTime;
     float                       silenceTimeTreshold;
 
     float getEnergy(unsigned int channel);
@@ -130,6 +131,10 @@ private:
     
     
     // sshht
+    vector<bool>                isShtSounding;
+    vector<float>               shtBeginTime;
+    float                       shtTimeTreshold;
+    
     void checkShtSound(int channel);
 };
 
