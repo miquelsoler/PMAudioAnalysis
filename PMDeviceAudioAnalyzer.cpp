@@ -199,7 +199,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
 //        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getEnergy(i) < 0.005);
+        bool isSilent = (getEnergy(i) < 0.001);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
@@ -422,14 +422,15 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
     float *melbands = vAubioMelBands[channel]->energies;
     float lowBands=0.0f;
     float highBands=0.0f;
-    for(int i=0; i<NUM_MELBANDS>>2; i++){
+    int high_low_limit=NUM_MELBANDS*2/3;
+    for(int i=0; i<high_low_limit; i++){
         lowBands+=melbands[i];
     }
-    lowBands/=(NUM_MELBANDS>>2);
-    for(int i=NUM_MELBANDS>>2; i<NUM_MELBANDS; i++){
+    lowBands/=high_low_limit;
+    for(int i=high_low_limit; i<NUM_MELBANDS; i++){
         highBands+=melbands[i];
     }
-    highBands/=(NUM_MELBANDS-(NUM_MELBANDS>>2));
+    highBands/=(NUM_MELBANDS-high_low_limit);
     
     
     if(highBands > lowBands && !isShtSounding[channel]){
@@ -448,8 +449,7 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         shtParams.channel=channel;
         shtParams.time=timeOfSht;
         ofNotifyEvent(eventShtHappened, shtParams, this);
-        cout<<"-------------------SHT-----------------"<<endl;
     }
-//    cout<<lowBands<<"------"<<highBands<<endl;
+    cout<<lowBands<<"------"<<highBands<<endl;
     
 }
