@@ -66,6 +66,9 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     // Silence
     useSilence = _useSilence;
     wasSilent = false;
+    silenceTimeTreshold=silenceQueueLength;
+    isInSilence.resize((unsigned long)numUsedChannels);
+    beginSilenceTime.resize((unsigned long) numUsedChannels);
 
     // Onsets
     onsetsThreshold = _onsetsThreshold;
@@ -192,19 +195,23 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
-        cout<<modifiedSmoothingDelta<<endl;
 //        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getEnergy(i) < 0.01);
+        bool isSilent = (getEnergy(i) < 0.05);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
         {
             wasSilent = isSilent;
-            silenceParams.channel = channel;
-            silenceParams.isSilent = isSilent;
-            ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
-
+            if(isSilent){
+                detectedSilence(channel);
+            }else{
+                detectedEndSilence(channel);
+            }
         }
+        
+        
+        if(isInSilence[channel])
+            updateSilenceTime(channel);
 
         if (!isSilent)
         {
@@ -236,6 +243,15 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 energyParams.energy = getEnergy(channel);
                 ofNotifyEvent(eventEnergyChanged, energyParams, this);
             }
+        }
+
+        bool isOnset = vAubioOnsets[i]->received();
+        if (oldOnsetState[i] != isOnset)
+        {
+            oldOnsetState[i] = isOnset;
+            onsetParams.channel = channel;
+            onsetParams.isOnset = isOnset;
+            ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
         }
     }
 
@@ -347,11 +363,55 @@ float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
     float *energies = vAubioMelBands[channel]->energies;
 
     float result = 0.0f;
+    float weightsum = 0.0f;
 
     for (int i=0; i<NUM_MELBANDS; i++)
     {
-        if (energies[i] > result)
-            result = energies[i];
+        //cout<<energies[i]<<"----";
+        float weight=(energies[i]);
+        result+=weight*energies[i];
+//        cout<<weight<<"......."<<result<<endl;
+        weightsum+=weight;
+//        if (energies[i] > result)
+//            result = energies[i]; //FIXME canviar l'energia predominant per un canvi d'energies
     }
+    //cout<<endl;
+    result/=weightsum; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
     return result;
+}
+
+void PMDeviceAudioAnalyzer::detectedSilence(int channel)
+{
+    beginSilenceTime[channel]=ofGetElapsedTimeMillis();
+    isInSilence[channel]=true;
+}
+
+void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
+{
+    float timeOfSilence = ofGetElapsedTimeMillis()-beginSilenceTime[channel];
+    if(timeOfSilence > silenceTimeTreshold){
+        silenceParams silenceParams;
+        silenceParams.deviceID = deviceID;
+        silenceParams.audioInputIndex = audioInputIndex;
+        silenceParams.channel = channel;
+        silenceParams.isSilent = true;
+        silenceParams.silenceTime = 0;
+        ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+    }
+    cout<<timeOfSilence<<endl;
+}
+
+void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
+{
+    silenceParams silenceParams;
+    silenceParams.deviceID = deviceID;
+    silenceParams.audioInputIndex = audioInputIndex;
+    float timeOfSilence = ofGetElapsedTimeMillis()-beginSilenceTime[channel];
+    if(timeOfSilence > silenceTimeTreshold){
+        silenceParams.channel = channel;
+        silenceParams.isSilent = false;
+        silenceParams.silenceTime = timeOfSilence;
+        ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+    }
+    isInSilence[channel]=false;
 }

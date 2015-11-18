@@ -118,8 +118,15 @@ private:
 //    float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
 
     bool                    isSetup;
+    
+    vector<bool>                isInSilence;
+    vector<float>               beginSilenceTime;
+    float                       silenceTimeTreshold;
 
     float getEnergy(unsigned int channel);
+    void detectedSilence(int channel);
+    void updateSilenceTime(int channel);
+    void detectedEndSilence(int channel);
 };
 
 #endif /* PMDeviceAudioAnalyzer_h */

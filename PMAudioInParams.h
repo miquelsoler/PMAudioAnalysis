@@ -32,6 +32,7 @@ struct energyParams : public baseAudioInParams
 struct silenceParams : public baseAudioInParams
 {
     bool isSilent;
+    float silenceTime;
 };
 
 struct freqBandsParams : public baseAudioInParams
