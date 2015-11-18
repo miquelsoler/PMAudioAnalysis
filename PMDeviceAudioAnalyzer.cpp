@@ -232,6 +232,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                         pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                         ofNotifyEvent(eventPitchChanged, pitchParams, this);
                     }
+                    oldMidiNotesValues[i]=currentMidiNote;
                 }
             }
 
@@ -366,14 +367,13 @@ float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
     for (int i=0; i<NUM_MELBANDS; i++)
     {
         //cout<<energies[i]<<"----";
-        float weight=(energies[i]);
+        float weight=1;
         result+=weight*energies[i];
 //        cout<<weight<<"......."<<result<<endl;
         weightsum+=weight;
 //        if (energies[i] > result)
 //            result = energies[i]; //FIXME canviar l'energia predominant per un canvi d'energies
     }
-    //cout<<endl;
     result/=weightsum; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
     return result;
 }
@@ -396,7 +396,6 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         silenceParams.silenceTime = 0;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
-    cout<<timeOfSilence<<endl;
 }
 
 void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
