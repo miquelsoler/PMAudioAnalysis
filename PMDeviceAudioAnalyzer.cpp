@@ -192,7 +192,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
-        cout<<modifiedSmoothingDelta<<endl;
+//        cout<<modifiedSmoothingDelta<<endl;
 //        bool isSilent = (currentMidiNote == 0);
         bool isSilent = (getEnergy(i) < 0.01);
 
