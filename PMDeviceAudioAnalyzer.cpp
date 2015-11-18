@@ -449,7 +449,7 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         shtParams.channel=channel;
         shtParams.time=timeOfSht;
         ofNotifyEvent(eventShtHappened, shtParams, this);
+        cout<<"-------------------SHT-----------------"<<endl;
     }
-    cout<<lowBands<<"------"<<highBands<<endl;
     
 }
