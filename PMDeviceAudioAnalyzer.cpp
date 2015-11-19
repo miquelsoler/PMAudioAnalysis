@@ -399,7 +399,7 @@ float PMDeviceAudioAnalyzer::getRms(float *input, int bufferSize)
     }
     rms=rms/bufferSize;
 //    rms=sqrt(rms);
-    cout<<rms<<endl;
+//    cout<<rms<<endl;
     return rms;
 }
 
