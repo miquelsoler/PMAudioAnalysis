@@ -184,7 +184,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
     
-    cout<<input<<endl;
 
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
@@ -451,7 +450,7 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         shtParams.channel=channel;
         shtParams.time=timeOfSht;
         ofNotifyEvent(eventShtHappened, shtParams, this);
-        cout<<"-------------------SHT-----------------"<<endl;
+//        cout<<"-------------------SHT-----------------"<<endl;
     }
     
 }
