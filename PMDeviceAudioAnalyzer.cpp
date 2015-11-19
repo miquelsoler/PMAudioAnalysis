@@ -183,6 +183,8 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams freqBandsParams;
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
+    
+    cout<<input<<endl;
 
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
@@ -433,10 +435,10 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
     highBands/=(NUM_MELBANDS-high_low_limit);
     
     
-    if(highBands > lowBands && !isShtSounding[channel]){
+    if(highBands > 3*lowBands && !isShtSounding[channel]){
         shtBeginTime[channel]=ofGetElapsedTimeMillis();
         isShtSounding[channel]=true;
-    }else if(highBands<lowBands){
+    }else if(highBands<3*lowBands){
         isShtSounding[channel]=false;
     }
     
