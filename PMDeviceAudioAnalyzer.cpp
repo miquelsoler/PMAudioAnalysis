@@ -190,7 +190,8 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
     
-
+    getRms(input, bufferSize);
+    
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
         // Compute aubio
@@ -206,7 +207,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
 //        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getEnergy(i) < 0.001);
+        bool isSilent = (getAbsMean(input, bufferSize, channel) < 0.01);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
@@ -251,7 +252,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             // Mel bands
             {
                 energyParams.channel = channel;
-                energyParams.energy = getEnergy(channel);
+                energyParams.energy = getAbsMean(input, bufferSize, channel);
                 ofNotifyEvent(eventEnergyChanged, energyParams, this);
             }
             
@@ -387,6 +388,28 @@ float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
     
     result/=NUM_MELBANDS; //Applied vector aritmetic mean https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
     return result;
+}
+
+float PMDeviceAudioAnalyzer::getRms(float *input, int bufferSize)
+{
+    float rms=0.0f;
+    for(int i=0; i<bufferSize; i++){
+//        rms+=input[i]*input[i];
+        rms+=abs(input[i]);
+    }
+    rms=rms/bufferSize;
+//    rms=sqrt(rms);
+    cout<<rms<<endl;
+    return rms;
+}
+
+float PMDeviceAudioAnalyzer::getAbsMean(float *input, int bufferSize, int channel)
+{
+    float sum=0.0f;
+    for(int i=bufferSize*channel; i<bufferSize*(channel+1); i++){
+        sum+=abs(input[i]);
+    }
+    return sum/bufferSize;
 }
 
 void PMDeviceAudioAnalyzer::detectedSilence(int channel)
