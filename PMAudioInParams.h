@@ -51,5 +51,11 @@ struct shtParams : public baseAudioInParams
     float time;
 };
 
+struct  pauseParams: public baseAudioInParams
+{
+    bool isPause;
+    float pauseTime;
+};
+
 
 #endif /* PMAudioOutParams_h */

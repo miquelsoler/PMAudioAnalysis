@@ -67,7 +67,9 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     useSilence = _useSilence;
     wasSilent = false;
     silenceTimeTreshold=silenceQueueLength;
+    pauseTimeTreshold=1000;
     isInSilence.resize((unsigned long)numUsedChannels);
+    isInPause.resize((unsigned long)numUsedChannels);
     silenceBeginTime.resize((unsigned long) numUsedChannels);
 
     //sht
@@ -166,6 +168,10 @@ void PMDeviceAudioAnalyzer::clear()
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+    
+//    for (int i=0; i<bufferSize*nChannels; i++){
+//        input[i]*=5;
+//    }
 
     // Init of audio event params struct
     pitchParams pitchParams;
@@ -213,7 +219,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             }
         }
         
-        
+//        cout<<"-----------------------"<<isInPause[channel]<<endl;
         if(isInSilence[channel])
             updateSilenceTime(channel);
 
@@ -401,6 +407,16 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         silenceParams.silenceTime = 0;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
+    if(timeOfSilence > pauseTimeTreshold){
+        pauseParams pauseParams;
+        pauseParams.deviceID = deviceID;
+        pauseParams.audioInputIndex = audioInputIndex;
+        pauseParams.channel = channel;
+        pauseParams.isPause = true;
+        pauseParams.pauseTime = 0;
+        ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
+        isInPause[channel]=true;
+    }
 }
 
 void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
@@ -415,6 +431,16 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
         silenceParams.silenceTime = timeOfSilence;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
+    if(isInPause[channel]){
+        pauseParams pauseParams;
+        pauseParams.deviceID = deviceID;
+        pauseParams.audioInputIndex = audioInputIndex;
+        pauseParams.channel = channel;
+        pauseParams.isPause = true;
+        pauseParams.pauseTime = timeOfSilence;
+        ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
+    }
+    isInPause[channel]=false;
     isInSilence[channel]=false;
 }
 

@@ -70,6 +70,7 @@ public:
     ofEvent<onsetParams>        eventOnsetStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
     ofEvent<shtParams>          eventShtHappened;
+    ofEvent<pauseParams>        eventPauseStateChanged;
 
 private:
 
@@ -121,8 +122,10 @@ private:
     bool                    isSetup;
     
     vector<bool>                isInSilence;
+    vector<bool>                isInPause;
     vector<float>               silenceBeginTime;
     float                       silenceTimeTreshold;
+    float                       pauseTimeTreshold;
 
     float getEnergy(unsigned int channel);
     void detectedSilence(int channel);
