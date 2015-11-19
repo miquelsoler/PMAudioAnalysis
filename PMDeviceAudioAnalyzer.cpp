@@ -462,7 +462,7 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
         pauseParams.channel = channel;
-        pauseParams.isPaused = true;
+        pauseParams.isPaused = false;
         pauseParams.pauseTime = timeOfSilence;
         ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
     }
