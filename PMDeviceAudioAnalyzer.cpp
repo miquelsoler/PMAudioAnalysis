@@ -398,7 +398,8 @@ void PMDeviceAudioAnalyzer::detectedSilence(int channel)
 void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
 {
     float timeOfSilence = ofGetElapsedTimeMillis()-silenceBeginTime[channel];
-    if(timeOfSilence > silenceTimeTreshold){
+    if (timeOfSilence > silenceTimeTreshold)
+    {
         silenceParams silenceParams;
         silenceParams.deviceID = deviceID;
         silenceParams.audioInputIndex = audioInputIndex;
@@ -407,12 +408,14 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         silenceParams.silenceTime = 0;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
-    if(timeOfSilence > pauseTimeTreshold){
+
+    if (timeOfSilence > pauseTimeTreshold)
+    {
         pauseParams pauseParams;
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
         pauseParams.channel = channel;
-        pauseParams.isPause = true;
+        pauseParams.isPaused = true;
         pauseParams.pauseTime = 0;
         ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
         isInPause[channel]=true;
@@ -436,7 +439,7 @@ void PMDeviceAudioAnalyzer::detectedEndSilence(int channel)
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
         pauseParams.channel = channel;
-        pauseParams.isPause = true;
+        pauseParams.isPaused = true;
         pauseParams.pauseTime = timeOfSilence;
         ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
     }

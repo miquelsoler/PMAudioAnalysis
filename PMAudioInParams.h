@@ -53,7 +53,7 @@ struct shtParams : public baseAudioInParams
 
 struct  pauseParams: public baseAudioInParams
 {
-    bool isPause;
+    bool isPaused;
     float pauseTime;
 };
 
