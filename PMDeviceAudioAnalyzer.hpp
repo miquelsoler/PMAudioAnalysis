@@ -62,6 +62,8 @@ public:
     unsigned int getInputIndex() { return audioInputIndex; };
     int getDeviceID() { return deviceID; };
     int getChannelNumber() { return channelNumber; };
+    int getSamplerate();
+    int getNumChannels();
 
     // Events for listeners
     ofEvent<pitchParams>        eventPitchChanged;

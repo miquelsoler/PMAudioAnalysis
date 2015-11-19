@@ -375,6 +375,16 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 //    }
 }
 
+int PMDeviceAudioAnalyzer::getNumChannels()
+{
+    return inChannels;
+}
+
+int PMDeviceAudioAnalyzer::getSamplerate()
+{
+    return sampleRate;
+}
+
 float PMDeviceAudioAnalyzer::getEnergy(unsigned int channel)
 {
     float *energies = vAubioMelBands[channel]->energies;
