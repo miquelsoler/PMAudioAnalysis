@@ -64,7 +64,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     // Energy
     energyThreshold = _energyThreshold;
 
-    // Silence
+    // Silence & Pause
     useSilence = _useSilence;
     wasSilent = false;
     silenceThreshold=_silenceThreshold;
@@ -88,7 +88,6 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     oldOnsetState.assign(numUsedChannels, false);
 
     // Smoothing
-
     smoothingDelta = _smoothingDelta;
 
     if (!oldMidiNotesValues.empty())
@@ -121,6 +120,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
 
 //    aubioPitch.setup();
 
+    //AubioSetup
     for (int i=0; i<numUsedChannels; ++i)
     {
         ofxAubioPitch *aubioPitch = new ofxAubioPitch();
@@ -198,6 +198,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
         // Compute aubio
+        //FIXME: I think it recevies all channels no the selected ones
         {
             vAubioPitches[i]->audioIn(input, bufferSize, nChannels);
             vAubioOnsets[i]->audioIn(input, bufferSize, nChannels);
