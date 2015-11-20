@@ -7,6 +7,7 @@
 //
 
 #include "PMDeviceAudioAnalyzer.hpp"
+#include "PMRecorder.hpp"
 
 static const float SMOOTHING_INITIALVALUE = -999.0f;
 
@@ -270,6 +271,10 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             onsetParams.isOnset = isOnset;
             ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
         }
+    }
+    
+    if(PMRecorder::getInstance().isRecording()){
+        PMRecorder::getInstance().addAudioBuffer(input, bufferSize, nChannels);
     }
 
 

@@ -75,7 +75,7 @@ public:
     ofEvent<pauseParams>        eventPauseStateChanged;
 
 private:
-
+    
     // Setup
     unsigned int                audioInputIndex;
     int                         deviceID;
