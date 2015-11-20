@@ -224,42 +224,42 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         if(isInSilence[channel])
             updateSilenceTime(channel);
 
+        // Pitch
+        {
+            if (currentMidiNote)
+            {
+                if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
+                {
+                    float smoothedMidiNote;
+
+                    if (oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                        smoothedMidiNote = currentMidiNote;
+                    }  else {
+                        smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
+                    }
+
+                    pitchParams.channel = channel;
+                    pitchParams.midiNote = smoothedMidiNote;
+                    pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
+                    ofNotifyEvent(eventPitchChanged, pitchParams, this);
+                }
+                oldMidiNotesValues[i]=currentMidiNote;
+            }
+        }
+
+        // Mel bands
+        {
+            energyParams.channel = channel;
+            energyParams.energy = getAbsMean(input, bufferSize, channel);
+            ofNotifyEvent(eventEnergyChanged, energyParams, this);
+        }
+
         if (!isSilent)
         {
-            // Pitch
-            {
-                if (currentMidiNote)
-                {
-                    if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
-                    {
-                        float smoothedMidiNote;
 
-                        if (oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
-                            smoothedMidiNote = currentMidiNote;
-                        }  else {
-                            smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
-                        }
-
-                        pitchParams.channel = channel;
-                        pitchParams.midiNote = smoothedMidiNote;
-                        pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
-                        ofNotifyEvent(eventPitchChanged, pitchParams, this);
-                    }
-                    oldMidiNotesValues[i]=currentMidiNote;
-                }
-            }
-
-            // Mel bands
-            {
-                energyParams.channel = channel;
-                energyParams.energy = getAbsMean(input, bufferSize, channel);
-                ofNotifyEvent(eventEnergyChanged, energyParams, this);
-            }
             
             // ssshhhht
             checkShtSound(channel);
-            
-            
         }
 
         bool isOnset = vAubioOnsets[i]->received();
