@@ -273,8 +273,11 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         }
     }
     
+    
+    //Call to the Recorder
+    //FIXME: Now records all channels, better to chose how many chanels to record
     if(PMRecorder::getInstance().isRecording()){
-        PMRecorder::getInstance().addAudioBuffer(input, bufferSize, nChannels);
+        PMRecorder::getInstance().addAudioBuffer(input, bufferSize, inChannels);
     }
 
 
