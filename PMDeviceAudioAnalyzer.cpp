@@ -173,6 +173,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 //    for (int i=0; i<bufferSize*nChannels; i++){
 //        input[i]*=5;
 //    }
+    
 
     // Init of audio event params struct
     pitchParams pitchParams;
@@ -191,7 +192,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
     
-    getRms(input, bufferSize);
+//    getRms(input, bufferSize);
     
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
@@ -419,8 +420,8 @@ float PMDeviceAudioAnalyzer::getRms(float *input, int bufferSize)
 float PMDeviceAudioAnalyzer::getAbsMean(float *input, int bufferSize, int channel)
 {
     float sum=0.0f;
-    for(int i=bufferSize*channel; i<bufferSize*(channel+1); i++){
-        sum+=abs(input[i]);
+    for(int i=0; i<bufferSize*inChannels; i+=inChannels){
+        sum+=abs(input[i+channel]);
     }
     return sum/bufferSize;
 }
