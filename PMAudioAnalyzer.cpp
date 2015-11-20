@@ -11,7 +11,7 @@
 void PMAudioAnalyzer::init(
         float _minPitchFreq, float _maxPitchFreq,
         float _energyThreshold,
-        bool _useSilence, int _silenceThreshold, unsigned int _silenceQueueLength,
+        bool _useSilence, float _silenceThreshold, unsigned int _silenceQueueLength,
         float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta)
 {

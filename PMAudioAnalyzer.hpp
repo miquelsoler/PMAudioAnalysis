@@ -29,7 +29,7 @@ public:
 
     void init(float minPitchFreq, float maxPitchFreq,
             float energyThreshold,
-            bool useSilence, int silenceThreshold, unsigned int silenceQueueLength,
+            bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold, float onsetsAlpha,
             float smoothingDelta);
 
@@ -57,7 +57,7 @@ private:
 
     // Silence
     bool            useSilence;
-    int             silenceThreshold;
+    float           silenceThreshold;
     unsigned int    silenceQueueLength;
 
     // Onsets

@@ -44,7 +44,7 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
         float _minPitchMidiNote, float _maxPitchMidiNote,
         float _energyThreshold,
-        bool _useSilence, int silenceThreshold, unsigned int silenceQueueLength,
+        bool _useSilence, float _silenceThreshold, unsigned int silenceQueueLength,
         float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta)
 {
@@ -67,6 +67,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     // Silence
     useSilence = _useSilence;
     wasSilent = false;
+    silenceThreshold=_silenceThreshold;
     silenceTimeTreshold=silenceQueueLength;
     pauseTimeTreshold=1000;
     isInSilence.resize((unsigned long)numUsedChannels);
@@ -209,7 +210,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
 //        bool isSilent = (currentMidiNote == 0);
-        bool isSilent = (getAbsMean(input, bufferSize, channel) < 0.01);
+        bool isSilent = (getAbsMean(input, bufferSize, channel) < silenceThreshold);
 
         // Silence
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
