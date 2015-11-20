@@ -131,7 +131,7 @@ private:
     float                       pauseTimeTreshold;
 
     float getEnergy(unsigned int channel);
-    float getRms(float *input, int bufferSize);
+    float getRms(float *input, int bufferSize, int channel);
     float getAbsMean(float *input, int bufferSize, int channel);
     void detectedSilence(int channel);
     void updateSilenceTime(int channel);
