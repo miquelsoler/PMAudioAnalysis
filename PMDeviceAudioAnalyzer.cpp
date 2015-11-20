@@ -256,8 +256,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
         if (!isSilent)
         {
-
-            
             // ssshhhht
             checkShtSound(channel);
         }
