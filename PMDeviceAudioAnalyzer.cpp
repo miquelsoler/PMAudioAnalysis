@@ -231,11 +231,12 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         {
             if (currentMidiNote)
             {
-                if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
+                //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
+                if(true)
                 {
                     float smoothedMidiNote;
 
-                    if (oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                    if (true){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
                         smoothedMidiNote = currentMidiNote;
                     }  else {
                         smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
