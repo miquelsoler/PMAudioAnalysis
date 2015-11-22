@@ -450,16 +450,24 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
 
-    if (timeOfSilence > pauseTimeTreshold)
+    bool sendEvent = false;
+    if (timeOfSilence > pauseTimeTreshold) {
+        sendEvent = !(isInPause[channel]);
+        isInPause[channel] = true;
+    } else {
+        sendEvent = isInPause[channel];
+        isInPause[channel] = false;
+    }
+
+    if (sendEvent)
     {
         pauseParams pauseParams;
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
         pauseParams.channel = channel;
-        pauseParams.isPaused = true;
+        pauseParams.isPaused = isInPause[channel];
         pauseParams.pauseTime = 0;
         ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
-        isInPause[channel]=true;
     }
 }
 

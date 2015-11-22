@@ -99,7 +99,7 @@ private:
     // Silence
     bool                        useSilence;
     bool                        wasSilent;
-    float                         silenceThreshold;
+    float                       silenceThreshold;
 
     // Onsets
     float                       onsetsThreshold;
@@ -114,15 +114,11 @@ private:
 
     ofSoundStream               soundStream;
 
-//    ofxAubioPitch               aubioPitch;
     vector<ofxAubioPitch *>     vAubioPitches;
     vector<ofxAubioOnset *>     vAubioOnsets;
     vector<ofxAubioMelBands *>  vAubioMelBands;
 
-//    vector<ofxAudioAnalyzer *>  audioAnalyzers;
-//    float                   **buffers; // buffers[ CHANNEL ][ CHANNEL BUFFER ]
-
-    bool                    isSetup;
+    bool                        isSetup;
     
     vector<bool>                isInSilence;
     vector<bool>                isInPause;
