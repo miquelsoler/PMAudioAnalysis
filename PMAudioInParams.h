@@ -48,8 +48,8 @@ struct onsetParams : public baseAudioInParams
 
 struct shtParams : public baseAudioInParams
 {
-    float time;
     bool isSht;
+    float time;
 };
 
 struct  pauseParams: public baseAudioInParams

@@ -77,6 +77,8 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     //sht
     shtTimeTreshold=150;
     isShtSounding.resize((unsigned long) numUsedChannels);
+    isShtTrueSent.resize((unsigned long) numUsedChannels);
+    isShtFalseSent.resize((unsigned long) numUsedChannels);
     shtBeginTime.resize((unsigned long)numUsedChannels);
 
     // Onsets
@@ -411,33 +413,36 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
     if (highBands > 3*lowBands && !isShtSounding[channel]) {
         shtBeginTime[channel]=ofGetElapsedTimeMillis();
         isShtSounding[channel]=true;
-    } else if(highBands<3*lowBands) {
+        isShtTrueSent[channel]=false;
+    } else if(highBands<3*lowBands && isShtSounding[channel]) {
         isShtSounding[channel]=false;
+        isShtFalseSent[channel]=false;
     }
-    
+//    cout<<isShtSounding[channel]<<endl;
     float timeOfSht=ofGetElapsedTimeMillis()-shtBeginTime[channel];
-    if (isShtSounding[channel] &&  timeOfSht > shtTimeTreshold) {
+    if (isShtSounding[channel] &&  timeOfSht > shtTimeTreshold && !isShtTrueSent[channel]) {
         shtParams shtParams;
         shtParams.deviceID=deviceID;
         shtParams.audioInputIndex=audioInputIndex;
         shtParams.channel=channel;
         shtParams.time=timeOfSht;
         shtParams.isSht = true;
-        ofNotifyEvent(eventShtHappened, shtParams, this);
-        //        cout<<"-------------------SHT-----------------"<<endl;
+        ofNotifyEvent(eventShtStateChanged, shtParams, this);
+        isShtTrueSent[channel]=true;
+//        isShtFalseSent[channel]=false;
         cout << "analyzing sht true" << endl;
     }
-    else if(isShtSounding[channel]==false)
+    else if(!isShtSounding[channel] && !isShtFalseSent[channel])
     {
         shtParams shtParams;
-
         shtParams.deviceID=deviceID;
         shtParams.audioInputIndex=audioInputIndex;
         shtParams.channel=channel;
         shtParams.time=timeOfSht;
         shtParams.isSht = false;
-        
-        ofNotifyEvent(eventShtHappened, shtParams, this);
+        ofNotifyEvent(eventShtStateChanged, shtParams, this);
+        isShtFalseSent[channel]=true;
+//        isShtTrueSent[channel]=false;
         cout << "analyzing sht false" << endl;
     }
 }

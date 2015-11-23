@@ -71,7 +71,7 @@ public:
     ofEvent<energyParams>       eventEnergyChanged;
     ofEvent<onsetParams>        eventOnsetStateChanged;
     ofEvent<freqBandsParams>    eventFreqBandsParams;
-    ofEvent<shtParams>          eventShtHappened;
+    ofEvent<shtParams>          eventShtStateChanged;
     ofEvent<pauseParams>        eventPauseStateChanged;
 
 private:
@@ -138,6 +138,8 @@ private:
     vector<bool>                isShtSounding;
     vector<float>               shtBeginTime;
     float                       shtTimeTreshold;
+    vector<bool>                isShtTrueSent;
+    vector<bool>                isShtFalseSent;
     
     void checkShtSound(int channel);
 };
