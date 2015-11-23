@@ -109,6 +109,7 @@ private:
     // Smoothing
     float                       smoothingDelta;
     vector<float>               oldMidiNotesValues;
+    vector<deque<float >>       midiNoteHistory;
 
     // Sound analysis
 

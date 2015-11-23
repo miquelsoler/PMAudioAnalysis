@@ -158,24 +158,12 @@ void PMDeviceAudioAnalyzer::stop()
 void PMDeviceAudioAnalyzer::clear()
 {
     stop();
-
-    //    // Delete internal audio analyzer stuff
-    //    for (int i=0; i<audioAnalyzers.size(); ++i)
-    //        audioAnalyzers[i]->exit();
-    //
-    //    // Erase all audio analyzers from vector
-    //    for (int i=0; i<audioAnalyzers.size(); ++i)
-    //        delete audioAnalyzers[i];
-    //    audioAnalyzers.clear();
+    //TODO: Delete aubio
 }
 
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
     int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
-
-//    for (int i=0; i<bufferSize*nChannels; i++){
-//        input[i]*=5;
-//    }
 
     // Init of audio event params struct
     pitchParams pitchParams;
@@ -194,8 +182,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     freqBandsParams.deviceID = deviceID;
     freqBandsParams.audioInputIndex = audioInputIndex;
 
-//    getRms(input, bufferSize);
-
     for (unsigned int i =0; i <numUsedChannels; ++i)
     {
         // Compute aubio
@@ -211,7 +197,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
-//        bool isSilent = (currentMidiNote == 0);
         bool isSilent = (getAbsMean(input, bufferSize, channel) < silenceThreshold);
 
         // Silence
@@ -225,7 +210,6 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             }
         }
 
-//        cout<<"-----------------------"<<isInPause[channel]<<endl;
         if(isInSilence[channel])
             updateSilenceTime(channel);
 
@@ -418,7 +402,7 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         isShtSounding[channel]=false;
         isShtFalseSent[channel]=false;
     }
-//    cout<<isShtSounding[channel]<<endl;
+
     float timeOfSht=ofGetElapsedTimeMillis()-shtBeginTime[channel];
     if (isShtSounding[channel] &&  timeOfSht > shtTimeTreshold && !isShtTrueSent[channel]) {
         shtParams shtParams;
@@ -429,8 +413,6 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         shtParams.isSht = true;
         ofNotifyEvent(eventShtStateChanged, shtParams, this);
         isShtTrueSent[channel]=true;
-//        isShtFalseSent[channel]=false;
-//        cout << "analyzing sht true" << endl;
     }
     else if(!isShtSounding[channel] && !isShtFalseSent[channel])
     {
@@ -442,7 +424,5 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         shtParams.isSht = false;
         ofNotifyEvent(eventShtStateChanged, shtParams, this);
         isShtFalseSent[channel]=true;
-//        isShtTrueSent[channel]=false;
-//        cout << "analyzing sht false" << endl;
     }
 }
