@@ -430,7 +430,7 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         ofNotifyEvent(eventShtStateChanged, shtParams, this);
         isShtTrueSent[channel]=true;
 //        isShtFalseSent[channel]=false;
-        cout << "analyzing sht true" << endl;
+//        cout << "analyzing sht true" << endl;
     }
     else if(!isShtSounding[channel] && !isShtFalseSent[channel])
     {
@@ -443,6 +443,6 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         ofNotifyEvent(eventShtStateChanged, shtParams, this);
         isShtFalseSent[channel]=true;
 //        isShtTrueSent[channel]=false;
-        cout << "analyzing sht false" << endl;
+//        cout << "analyzing sht false" << endl;
     }
 }
