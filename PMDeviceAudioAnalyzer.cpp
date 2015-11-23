@@ -46,7 +46,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
                                   float _energyThreshold,
                                   bool _useSilence, float _silenceThreshold, unsigned int silenceQueueLength,
                                   float _onsetsThreshold, float _onsetsAlpha,
-                                  float _smoothingDelta)
+                                  float _smoothingDelta, int _ascDescAnalysisSize)
 {
     if (isSetup) return;
 
@@ -91,6 +91,14 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
 
     // Smoothing
     smoothingDelta = _smoothingDelta;
+    
+    //Midi Values History, used for computing ascending descending melodies
+    
+    for (int i=0; i<numUsedChannels; i++){
+        deque<float> tempdeque;
+        tempdeque.resize(_ascDescAnalysisSize);
+        midiNoteHistory.push_back(tempdeque);
+    }
 
     if (!oldMidiNotesValues.empty())
         oldMidiNotesValues.clear();
@@ -222,20 +230,27 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 {
                     float smoothedMidiNote;
 
-                    if (true){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
                         smoothedMidiNote = currentMidiNote;
                     }  else {
                         smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
                     }
 
                     pitchParams.channel = channel;
-                    pitchParams.midiNote = smoothedMidiNote;
+                    pitchParams.midiNote = currentMidiNote;
                     pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                     ofNotifyEvent(eventPitchChanged, pitchParams, this);
+                    midiNoteHistory[channel].push_back(smoothedMidiNote);
+                    midiNoteHistory[channel].pop_front();
+                    
+                    oldMidiNotesValues[i]=smoothedMidiNote;
+                    checkMelodyDirection(channel);
                 }
-                oldMidiNotesValues[i]=currentMidiNote;
+                
             }
         }
+        
+        
 
         // Mel bands
         {
@@ -425,4 +440,22 @@ void PMDeviceAudioAnalyzer::checkShtSound(int channel)
         ofNotifyEvent(eventShtStateChanged, shtParams, this);
         isShtFalseSent[channel]=true;
     }
+}
+
+void PMDeviceAudioAnalyzer::checkMelodyDirection(int channel)
+{
+    melodyDirectionParams melodyDirectionParams;
+    melodyDirectionParams.deviceID=deviceID;
+    melodyDirectionParams.audioInputIndex=audioInputIndex;
+    melodyDirectionParams.channel=channel;
+    
+    float diferenceSum=0;
+    for(int i=0; i<midiNoteHistory[channel].size()-1; i++){
+        diferenceSum+=midiNoteHistory[channel][i+1]-midiNoteHistory[channel][i];
+    }
+    if(diferenceSum!=0){
+        melodyDirectionParams.direction=diferenceSum;
+        ofNotifyEvent(eventMelodyDirection, melodyDirectionParams, this);
+    }
+//    cout<<diferenceSum<<endl;
 }

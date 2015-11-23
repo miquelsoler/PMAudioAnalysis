@@ -50,7 +50,7 @@ public:
             float energyThreshold,
             bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold, float onsetsAlpha,
-            float smoothingDelta);
+            float smoothingDelta, int ascDescAnalysisSize);
 
     void start();
     void stop();
@@ -73,6 +73,7 @@ public:
     ofEvent<freqBandsParams>    eventFreqBandsParams;
     ofEvent<shtParams>          eventShtStateChanged;
     ofEvent<pauseParams>        eventPauseStateChanged;
+    ofEvent<melodyDirectionParams> eventMelodyDirection;
 
 private:
     
@@ -109,7 +110,7 @@ private:
     // Smoothing
     float                       smoothingDelta;
     vector<float>               oldMidiNotesValues;
-    vector<deque<float >>       midiNoteHistory;
+    vector<deque<float> >       midiNoteHistory;
 
     // Sound analysis
 
@@ -133,6 +134,7 @@ private:
     void detectedSilence(int channel);
     void updateSilenceTime(int channel);
     void detectedEndSilence(int channel);
+    void checkMelodyDirection(int channel);
     
     
     // sshht

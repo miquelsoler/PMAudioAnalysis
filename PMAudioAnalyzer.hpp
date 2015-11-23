@@ -31,7 +31,7 @@ public:
             float energyThreshold,
             bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold, float onsetsAlpha,
-            float smoothingDelta);
+            float smoothingDelta, int ascDescAnalysisSize);
 
     PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
@@ -66,6 +66,9 @@ private:
 
     // Smoothing
     float           smoothingDelta;
+    
+    // Ascendent Descendent Melody analysis
+    int             ascDescAnalysisSize;
 
     vector<PMDeviceAudioAnalyzer *> deviceAudioAnalyzers;
 };

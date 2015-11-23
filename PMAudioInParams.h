@@ -58,5 +58,10 @@ struct  pauseParams: public baseAudioInParams
     float pauseTime;
 };
 
+struct melodyDirectionParams: public baseAudioInParams
+{
+    float direction;
+};
+
 
 #endif /* PMAudioOutParams_h */
