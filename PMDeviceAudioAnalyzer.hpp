@@ -135,6 +135,7 @@ private:
     void updateSilenceTime(int channel);
     void detectedEndSilence(int channel);
     void checkMelodyDirection(int channel);
+    int                         ascDescAnalysisSize;
     
     
     // sshht

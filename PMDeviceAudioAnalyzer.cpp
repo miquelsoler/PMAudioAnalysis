@@ -96,9 +96,10 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     
     for (int i=0; i<numUsedChannels; i++){
         deque<float> tempdeque;
-        tempdeque.resize(_ascDescAnalysisSize);
         midiNoteHistory.push_back(tempdeque);
     }
+    
+    ascDescAnalysisSize=_ascDescAnalysisSize;
 
     if (!oldMidiNotesValues.empty())
         oldMidiNotesValues.clear();
@@ -225,12 +226,13 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         {
             if (currentMidiNote)
             {
+
                 //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
                 if(true)
                 {
                     float smoothedMidiNote;
-
-                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                    if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote)){
+//                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
                         smoothedMidiNote = currentMidiNote;
                     }  else {
                         smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
@@ -240,13 +242,21 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                     pitchParams.midiNote = currentMidiNote;
                     pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                     ofNotifyEvent(eventPitchChanged, pitchParams, this);
-                    midiNoteHistory[channel].push_back(smoothedMidiNote);
-                    midiNoteHistory[channel].pop_front();
+                    midiNoteHistory[channel].push_front(smoothedMidiNote);
+                    if(midiNoteHistory[channel].size()>ascDescAnalysisSize)
+                        midiNoteHistory[channel].pop_back();
                     
+//                    for(int u=0; u<midiNoteHistory[channel].size(); u++){
+//                        cout<<midiNoteHistory[channel][u]<<"---";
+//                    }
+//                    cout<<endl;
                     oldMidiNotesValues[i]=smoothedMidiNote;
                     checkMelodyDirection(channel);
                 }
                 
+            }else{
+            if(midiNoteHistory[channel].size()>0)
+                midiNoteHistory[channel].pop_back();
             }
         }
         
@@ -453,9 +463,10 @@ void PMDeviceAudioAnalyzer::checkMelodyDirection(int channel)
     for(int i=0; i<midiNoteHistory[channel].size()-1; i++){
         diferenceSum+=midiNoteHistory[channel][i+1]-midiNoteHistory[channel][i];
     }
+    diferenceSum /= midiNoteHistory[channel].size();
     if(diferenceSum!=0){
         melodyDirectionParams.direction=diferenceSum;
         ofNotifyEvent(eventMelodyDirection, melodyDirectionParams, this);
     }
-//    cout<<diferenceSum<<endl;
+    cout<<diferenceSum<<endl;
 }
