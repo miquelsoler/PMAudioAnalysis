@@ -104,7 +104,8 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     if (!oldMidiNotesValues.empty())
         oldMidiNotesValues.clear();
 
-    oldMidiNotesValues.assign(numUsedChannels, SMOOTHING_INITIALVALUE);
+//    oldMidiNotesValues.assign(numUsedChannels, SMOOTHING_INITIALVALUE);
+    oldMidiNotesValues.assign(numUsedChannels, ((minPitchMidiNote+maxPitchMidiNote)/2));
 
 //    // Creation of audio in buffers
 //    // Buffer matrix:
@@ -205,7 +206,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
-        float modifiedSmoothingDelta=smoothingDelta*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
+        float modifiedSmoothingDelta=smoothingDelta;//*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
         bool isSilent = (getAbsMean(input, bufferSize, channel) < silenceThreshold);
 
         // Silence
@@ -231,15 +232,18 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 if(true)
                 {
                     float smoothedMidiNote;
-                    if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote)){
-//                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+                    //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote)){
+                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
                         smoothedMidiNote = currentMidiNote;
                     }  else {
                         smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
+//                        cout<<smoothedMidiNote<<endl;
                     }
 
                     pitchParams.channel = channel;
                     pitchParams.midiNote = currentMidiNote;
+                    pitchParams.smoothedMidiNote = smoothedMidiNote;
+                    pitchParams.midiPitchDivengence = smoothedMidiNote-((maxPitchMidiNote+minPitchMidiNote)/2);
                     pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                     ofNotifyEvent(eventPitchChanged, pitchParams, this);
                     midiNoteHistory[channel].push_front(smoothedMidiNote);
@@ -463,10 +467,10 @@ void PMDeviceAudioAnalyzer::checkMelodyDirection(int channel)
     for(int i=0; i<midiNoteHistory[channel].size()-1; i++){
         diferenceSum+=midiNoteHistory[channel][i+1]-midiNoteHistory[channel][i];
     }
-    diferenceSum /= midiNoteHistory[channel].size();
-    if(diferenceSum!=0){
+    diferenceSum /= ascDescAnalysisSize;
+    if(diferenceSum!=0 && midiNoteHistory[channel].size()==ascDescAnalysisSize){
         melodyDirectionParams.direction=diferenceSum;
         ofNotifyEvent(eventMelodyDirection, melodyDirectionParams, this);
     }
-    cout<<diferenceSum<<endl;
+//    cout<<diferenceSum<<endl;
 }
