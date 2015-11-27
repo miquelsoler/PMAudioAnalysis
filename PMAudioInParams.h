@@ -18,9 +18,9 @@ struct baseAudioInParams {
 
 struct pitchParams : public baseAudioInParams {
 //    float freq;
-    float confidence;
+//    float confidence;
     float midiNote;
-    float midiPitchDivengence;
+//    float midiPitchDivengence;
 };
 
 struct energyParams : public baseAudioInParams {

@@ -27,9 +27,7 @@ public:
         return instance;
     }
 
-    void init(float minPitchFreq, float maxPitchFreq,
-            float energyThreshold,
-            bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
+    void init(float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold,
             float smoothingDelta, int ascDescAnalysisSize);
 
@@ -48,14 +46,8 @@ public:
     
     float   getMidiNote();
     float   getEnergy();
+
 private:
-
-    // Pitch
-    //float           minPitchMidiNote;
-    //float           maxPitchMidiNote;
-
-    // Energy
-    float           energyThreshold;
 
     // Silence
     bool            useSilence;
