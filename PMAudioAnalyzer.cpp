@@ -15,8 +15,8 @@ void PMAudioAnalyzer::init(
         float _onsetsThreshold, float _onsetsAlpha,
         float _smoothingDelta, int _ascDescAnalysisSize)
 {
-    minPitchMidiNote = _minPitchFreq;
-    maxPitchMidiNote = _maxPitchFreq;
+//    minPitchMidiNote = _minPitchFreq;
+//    maxPitchMidiNote = _maxPitchFreq;
 
     energyThreshold = _energyThreshold;
 
@@ -39,7 +39,6 @@ PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
     deviceAudioAnalyzer->setup(audioInputIndex, channelMode, channelNumber,
-            minPitchMidiNote, maxPitchMidiNote,
             energyThreshold,
             useSilence, silenceThreshold, silenceQueueLength,
             onsetsThreshold, onsetsAlpha,
@@ -97,4 +96,13 @@ vector<ofSoundDevice> PMAudioAnalyzer::getInputDevices()
             inputDevices.push_back(allDevices[i]);
 
     return inputDevices;
+}
+
+float PMAudioAnalyzer::getMidiNote()
+{
+    return 64.0;
+}
+float PMAudioAnalyzer::getEnergy()
+{
+    return 0.5;
 }

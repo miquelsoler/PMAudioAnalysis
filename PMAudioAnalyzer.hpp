@@ -45,12 +45,14 @@ public:
     void clear();
 
     static vector<ofSoundDevice> getInputDevices();
-
+    
+    float   getMidiNote();
+    float   getEnergy();
 private:
 
     // Pitch
-    float           minPitchMidiNote;
-    float           maxPitchMidiNote;
+    //float           minPitchMidiNote;
+    //float           maxPitchMidiNote;
 
     // Energy
     float           energyThreshold;

@@ -42,7 +42,6 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 }
 
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
-                                  float _minPitchMidiNote, float _maxPitchMidiNote,
                                   float _energyThreshold,
                                   bool _useSilence, float _silenceThreshold, unsigned int silenceQueueLength,
                                   float _onsetsThreshold, float _onsetsAlpha,
@@ -56,10 +55,6 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
     channelMode = _channelMode;
     channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
     unsigned int numUsedChannels = (unsigned int)((channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels);
-
-    // Pitch
-    minPitchMidiNote = _minPitchMidiNote;
-    maxPitchMidiNote = _maxPitchMidiNote;
 
     // Energy
     energyThreshold = _energyThreshold;
@@ -105,7 +100,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
         oldMidiNotesValues.clear();
 
 //    oldMidiNotesValues.assign(numUsedChannels, SMOOTHING_INITIALVALUE);
-    oldMidiNotesValues.assign(numUsedChannels, ((minPitchMidiNote+maxPitchMidiNote)/2));
+    oldMidiNotesValues.assign(numUsedChannels, ((0+127)/2));
 
 //    // Creation of audio in buffers
 //    // Buffer matrix:
@@ -207,9 +202,10 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         float currentMidiNote = vAubioPitches[i]->latestPitch;
         float currentPitchConfidence = vAubioPitches[i]->pitchConfidence;
         float modifiedSmoothingDelta=smoothingDelta;//*ofMap(currentPitchConfidence, 0.5, 1, 0, 1, true);
-        bool isSilent = (getAbsMean(input, bufferSize, channel) < silenceThreshold);
 
         // Silence
+        bool isSilent = (getAbsMean(input, bufferSize, channel) < silenceThreshold);
+
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
         {
             wasSilent = isSilent;
@@ -231,22 +227,27 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote))
                 if(true)
                 {
-                    float smoothedMidiNote;
-                    //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote)){
-                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
-                        smoothedMidiNote = currentMidiNote;
-                    }  else {
-                        smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
-//                        cout<<smoothedMidiNote<<endl;
-                    }
+// !! no smoothing here ??
+//                    float smoothedMidiNote;
+//                    //if ((currentMidiNote > minPitchMidiNote) && (currentMidiNote < maxPitchMidiNote)){
+//                    if (false){ //(oldMidiNotesValues[i] == SMOOTHING_INITIALVALUE) {
+//                        smoothedMidiNote = currentMidiNote;
+//                    }  else {
+//                        smoothedMidiNote = (currentMidiNote * modifiedSmoothingDelta) + (oldMidiNotesValues[i] * (1.0f - modifiedSmoothingDelta));
+////                        cout<<smoothedMidiNote<<endl;
+//                    }
 
                     pitchParams.channel = channel;
                     pitchParams.midiNote = currentMidiNote;
-                    pitchParams.smoothedMidiNote = smoothedMidiNote;
-                    pitchParams.midiPitchDivengence = smoothedMidiNote-((maxPitchMidiNote+minPitchMidiNote)/2);
+// !! no smoothing here ??
+//                    pitchParams.midiPitchDivengence = smoothedMidiNote-((maxPitchMidiNote+minPitchMidiNote)/2);
+                    pitchParams.midiPitchDivengence = currentMidiNote-((maxPitchMidiNote+minPitchMidiNote)/2);
                     pitchParams.confidence = vAubioPitches[i]->pitchConfidence;
                     ofNotifyEvent(eventPitchChanged, pitchParams, this);
-                    midiNoteHistory[channel].push_front(smoothedMidiNote);
+// !! no smoothing here ??
+//                    midiNoteHistory[channel].push_front(smoothedMidiNote);
+                    midiNoteHistory[channel].push_front(currentMidiNote);
+
                     if(midiNoteHistory[channel].size()>ascDescAnalysisSize)
                         midiNoteHistory[channel].pop_back();
                     
@@ -254,7 +255,12 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 //                        cout<<midiNoteHistory[channel][u]<<"---";
 //                    }
 //                    cout<<endl;
-                    oldMidiNotesValues[i]=smoothedMidiNote;
+
+// !! no smoothing here ??
+//                    oldMidiNotesValues[i]=smoothedMidiNote;
+                    oldMidiNotesValues[i]=currentMidiNote;
+                    
+                    // MELODY DIRECTION
                     checkMelodyDirection(channel);
                 }
                 
@@ -350,6 +356,7 @@ void PMDeviceAudioAnalyzer::detectedSilence(int channel)
 void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
 {
     float timeOfSilence = ofGetElapsedTimeMillis()-silenceBeginTime[channel];
+    cout << "..." << endl;
     if (timeOfSilence > silenceTimeTreshold)
     {
         silenceParams silenceParams;
@@ -359,6 +366,7 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         silenceParams.isSilent = true;
         silenceParams.silenceTime = 0;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
+        cout << "time of silence is over   " << timeOfSilence << " . " <<silenceThreshold << endl;
     }
 
     bool sendEvent = false;

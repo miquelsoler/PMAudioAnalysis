@@ -46,7 +46,6 @@ public:
      * - numMelBands: number of mel bands (ignored when useMelBands=false)
      */
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
-            float minPitchMidiNote, float maxPitchMidiNote,
             float energyThreshold,
             bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold, float onsetsAlpha,

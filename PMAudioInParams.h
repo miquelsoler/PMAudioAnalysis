@@ -22,7 +22,6 @@ struct pitchParams : public baseAudioInParams
 //    float freq;
     float confidence;
     float midiNote;
-    float smoothedMidiNote;
     float midiPitchDivengence;
 };
 
