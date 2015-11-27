@@ -13,19 +13,16 @@
 
 #include <stdio.h>
 #include "ofMain.h"
-//#include "ofxAudioAnalyzer.h"
 #include "ofxAubio.h"
 #include "PMAudioInParams.h"
 
-typedef enum
-{
+typedef enum {
     PMDAA_CHANNEL_MULTI = 0,
     PMDAA_CHANNEL_MONO = 1
 } PMDAA_ChannelMode;
 
 
-class PMDeviceAudioAnalyzer : public ofBaseSoundInput
-{
+class PMDeviceAudioAnalyzer : public ofBaseSoundInput {
 public:
 
     /**
@@ -53,79 +50,78 @@ public:
 
     void start();
     void stop();
-
     void clear();
-
     void audioIn(float *input, int bufferSize, int nChannels);
 
     unsigned int getInputIndex() { return audioInputIndex; };
+
     int getDeviceID() { return deviceID; };
     int getChannelNumber() { return channelNumber; };
     int getSamplerate();
     int getNumChannels();
 
     // Events for listeners
-    ofEvent<pitchParams>        eventPitchChanged;
-    ofEvent<silenceParams>      eventSilenceStateChanged;
-    ofEvent<energyParams>       eventEnergyChanged;
-    ofEvent<onsetParams>        eventOnsetStateChanged;
-    ofEvent<freqBandsParams>    eventFreqBandsParams;
-    ofEvent<shtParams>          eventShtStateChanged;
-    ofEvent<pauseParams>        eventPauseStateChanged;
+    ofEvent<pitchParams> eventPitchChanged;
+    ofEvent<silenceParams> eventSilenceStateChanged;
+    ofEvent<energyParams> eventEnergyChanged;
+    ofEvent<onsetParams> eventOnsetStateChanged;
+    ofEvent<freqBandsParams> eventFreqBandsParams;
+    ofEvent<shtParams> eventShtStateChanged;
+    ofEvent<pauseParams> eventPauseStateChanged;
     ofEvent<melodyDirectionParams> eventMelodyDirection;
 
 private:
-    
+
     // Setup
-    unsigned int                audioInputIndex;
-    int                         deviceID;
-    int                         inChannels;
-    int                         outChannels;
-    int                         sampleRate;
-    int                         bufferSize;
-    int                         numBuffers;
+    unsigned int audioInputIndex;
+    int deviceID;
+    int inChannels;
+    int outChannels;
+    int sampleRate;
+    int bufferSize;
+    int numBuffers;
 
     // Channel mode
-    PMDAA_ChannelMode           channelMode;
-    int                         channelNumber;
+    PMDAA_ChannelMode channelMode;
+    int channelNumber;
 
     // Pitch
-    float                       minPitchMidiNote;
-    float                       maxPitchMidiNote;
+    float minPitchMidiNote;
+    float maxPitchMidiNote;
 
     // Energy
-    float                       energyThreshold;
+    float energyThreshold;
 
     // Silence
-    bool                        useSilence;
-    bool                        wasSilent;
-    float                       silenceThreshold;
+    bool useSilence;
+    bool wasSilent;
+    float silenceThreshold;
 
     // Onsets
-    float                       onsetsThreshold;
-    float                       onsetsAlpha;
-    vector<bool>                oldOnsetState;
+    float onsetsThreshold;
+    float onsetsAlpha;
+    vector<bool> oldOnsetState;
 
     // Smoothing
-    float                       smoothingDelta;
-    vector<float>               oldMidiNotesValues;
-    vector<deque<float> >       midiNoteHistory;
+    float smoothingDelta;
+    vector<float> oldMidiNotesValues;
+    vector<deque<float> > midiNoteHistory;
 
     // Sound analysis
 
-    ofSoundStream               soundStream;
+    ofSoundStream soundStream;
 
-    vector<ofxAubioPitch *>     vAubioPitches;
-    vector<ofxAubioOnset *>     vAubioOnsets;
-    vector<ofxAubioMelBands *>  vAubioMelBands;
+    vector<ofxAubioPitch *> vAubioPitches;
+    vector<ofxAubioOnset *> vAubioOnsets;
+    vector<ofxAubioMelBands *> vAubioMelBands;
 
-    bool                        isSetup;
-    
-    vector<bool>                isInSilence;
-    vector<bool>                isInPause;
-    vector<float>               silenceBeginTime;
-    float                       silenceTimeTreshold;
-    float                       pauseTimeTreshold;
+    bool isSetup;
+
+    vector<bool> isInSilence;
+    vector<bool> isInPause;
+    vector<float> silenceBeginTime;
+    float silenceTimeTreshold;
+    float pauseTimeTreshold;
 
     float getEnergy(unsigned int channel);
     float getRms(float *input, int bufferSize, int channel);
@@ -134,16 +130,16 @@ private:
     void updateSilenceTime(int channel);
     void detectedEndSilence(int channel);
     void checkMelodyDirection(int channel);
-    int                         ascDescAnalysisSize;
-    
-    
+
+    int ascDescAnalysisSize;
+
     // sshht
-    vector<bool>                isShtSounding;
-    vector<float>               shtBeginTime;
-    float                       shtTimeTreshold;
-    vector<bool>                isShtTrueSent;
-    vector<bool>                isShtFalseSent;
-    
+    vector<bool> isShtSounding;
+    vector<float> shtBeginTime;
+    float shtTimeTreshold;
+    vector<bool> isShtTrueSent;
+    vector<bool> isShtFalseSent;
+
     void checkShtSound(int channel);
 };
 
