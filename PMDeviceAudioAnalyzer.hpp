@@ -45,7 +45,7 @@ public:
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
             float energyThreshold,
             bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
-            float onsetsThreshold, float onsetsAlpha,
+            float onsetsThreshold,
             float smoothingDelta, int ascDescAnalysisSize);
 
     void start();
@@ -74,9 +74,8 @@ public:
     void setSilenceThreshold(float _f) {silenceThreshold=_f;};
     void setSilenceQueueLength(float _f) {silenceTimeTreshold=_f;};
     void setPauseTimeTreshold(float _f) {pauseTimeTreshold=_f;};
-    void setOnsetsThreshold(float _f) {onsetsThreshold = _f;};
-    void setOnsetsAlpha(float _f) {onsetsAlpha = _f;};
-        
+    void setOnsetsThreshold(float _f);
+
 private:
 
     // Setup
@@ -106,7 +105,6 @@ private:
 
     // Onsets
     float onsetsThreshold;
-    float onsetsAlpha;
     vector<bool> oldOnsetState;
 
     // Smoothing

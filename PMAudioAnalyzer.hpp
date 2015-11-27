@@ -30,7 +30,7 @@ public:
     void init(float minPitchFreq, float maxPitchFreq,
             float energyThreshold,
             bool useSilence, float silenceThreshold, unsigned int silenceQueueLength,
-            float onsetsThreshold, float onsetsAlpha,
+            float onsetsThreshold,
             float smoothingDelta, int ascDescAnalysisSize);
 
     PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
