@@ -356,7 +356,6 @@ void PMDeviceAudioAnalyzer::detectedSilence(int channel)
 void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
 {
     float timeOfSilence = ofGetElapsedTimeMillis()-silenceBeginTime[channel];
-    cout << "..." << endl;
     if (timeOfSilence > silenceTimeTreshold)
     {
         silenceParams silenceParams;
@@ -366,7 +365,6 @@ void PMDeviceAudioAnalyzer::updateSilenceTime(int channel)
         silenceParams.isSilent = true;
         silenceParams.silenceTime = 0;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
-        cout << "time of silence is over   " << timeOfSilence << " . " <<silenceThreshold << endl;
     }
 
     bool sendEvent = false;
