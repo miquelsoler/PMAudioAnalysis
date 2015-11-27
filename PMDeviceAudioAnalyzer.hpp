@@ -70,6 +70,13 @@ public:
     ofEvent<pauseParams> eventPauseStateChanged;
     ofEvent<melodyDirectionParams> eventMelodyDirection;
 
+    // Setters
+    void setSilenceThreshold(float _f) {silenceThreshold=_f;};
+    void setSilenceQueueLength(float _f) {silenceTimeTreshold=_f;};
+    void setPauseTimeTreshold(float _f) {pauseTimeTreshold=_f;};
+    void setOnsetsThreshold(float _f) {onsetsThreshold = _f;};
+    void setOnsetsAlpha(float _f) {onsetsAlpha = _f;};
+        
 private:
 
     // Setup
