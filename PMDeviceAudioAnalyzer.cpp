@@ -43,7 +43,7 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 }
 
 //--------------------------------------------------------------------------------------------
-void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, unsigned int _channelNumber,
+void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMode _channelMode, vector<unsigned int> _channelNumbers,
         float _silenceThreshold, unsigned int silenceQueueLength,
         float _onsetsThreshold,
         float _smoothingDelta,
@@ -56,8 +56,10 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, PMDAA_ChannelMo
 
     // Channels
     channelMode = _channelMode;
-    channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
-    unsigned int numUsedChannels = (unsigned int) ((channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels);
+    channelNumbers = _channelNumbers;
+    unsigned int numUsedChannels = (unsigned int)((channelMode == PMDAA_CHANNEL_MONO) ? 1 : channelNumbers.size());
+//    channelNumber = (channelMode == PMDAA_CHANNEL_MONO) ? _channelNumber : -1;
+//    unsigned int numUsedChannels = (unsigned int) ((channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels);
 
     // Silence & Pause
     wasSilent = false;

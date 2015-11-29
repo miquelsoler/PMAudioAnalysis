@@ -27,9 +27,9 @@ public:
             float onsetsThreshold,
             float smoothingDelta, int ascDescAnalysisSize);
 
-    PMDeviceAudioAnalyzer *addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
+    PMDeviceAudioAnalyzer *addDeviceAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
-            PMDAA_ChannelMode channelMode, unsigned int channelNumber);
+            PMDAA_ChannelMode channelMode, vector<unsigned int> channelNumbers);
 
     vector<PMDeviceAudioAnalyzer *> *getAudioAnalyzers();
 

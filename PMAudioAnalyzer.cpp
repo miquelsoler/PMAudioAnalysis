@@ -23,12 +23,12 @@ void PMAudioAnalyzer::init(
     ascDescAnalysisSize = _ascDescAnalysisSize;
 }
 
-PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAudioAnalyzer(
-        unsigned int audioInputIndex,
-        int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize,
-        PMDAA_ChannelMode channelMode, unsigned int channelNumber) {
+PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
+        int sampleRate, int bufferSize,
+        PMDAA_ChannelMode channelMode, vector<unsigned int> channelNumbers)
+{
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
-    deviceAudioAnalyzer->setup(audioInputIndex, channelMode, channelNumber,
+    deviceAudioAnalyzer->setup(audioInputIndex, channelMode, channelNumbers,
             silenceThreshold, silenceQueueLength,
             onsetsThreshold,
             smoothingDelta, ascDescAnalysisSize);

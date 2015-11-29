@@ -29,7 +29,7 @@ public:
     PMDeviceAudioAnalyzer() {};
     ~PMDeviceAudioAnalyzer();
 
-    void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
+    void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, vector<unsigned int> channelNumbers,
             float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold,
             float smoothingDelta,
@@ -76,6 +76,7 @@ private:
 
     // Channel mode
     PMDAA_ChannelMode channelMode;
+    vector<unsigned int> channelNumbers;
     int channelNumber;
 
     // Pitch
