@@ -25,23 +25,10 @@ typedef enum {
 class PMDeviceAudioAnalyzer : public ofBaseSoundInput {
 public:
 
-    /**
-     * PMDeviceAudioAnalyzer(...)
-     * Constructor just sets sound stream attributes. Calling it doesn't start the sound stream analysis.
-     */
     PMDeviceAudioAnalyzer(int deviceID, int inChannels, int outChannels, int sampleRate, int bufferSize);
-
     PMDeviceAudioAnalyzer() {};
-
     ~PMDeviceAudioAnalyzer();
 
-    /**
-     * setup:
-     * - channelMode: mono or multichannel
-     * - channelNumber: 0..N (ignored when in multichannel mode)
-     * - useMelBands: true if it needs obtaining mel bands
-     * - numMelBands: number of mel bands (ignored when useMelBands=false)
-     */
     void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, unsigned int channelNumber,
             float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold,

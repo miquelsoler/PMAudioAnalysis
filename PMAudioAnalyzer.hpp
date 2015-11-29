@@ -17,10 +17,6 @@ class PMAudioAnalyzer
 {
 public:
 
-    /**
-     * getInstance()
-     * Returns singleton instance
-     */
     static PMAudioAnalyzer &getInstance()
     {
         static PMAudioAnalyzer instance;
@@ -31,7 +27,7 @@ public:
             float onsetsThreshold,
             float smoothingDelta, int ascDescAnalysisSize);
 
-    PMDeviceAudioAnalyzer * addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
+    PMDeviceAudioAnalyzer *addDeviceAudioAnalyzer(unsigned int audioInputIndex, int deviceID, int inChannels, int outChannels,
             int sampleRate, int bufferSize,
             PMDAA_ChannelMode channelMode, unsigned int channelNumber);
 

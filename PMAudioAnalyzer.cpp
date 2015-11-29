@@ -60,8 +60,6 @@ void PMAudioAnalyzer::clear() {
         deviceAudioAnalyzers[i]->clear();
 
     // Erase all device audio analyzers from vector
-//    for (int i=0; i<deviceAudioAnalyzers.size(); ++i)
-//        delete deviceAudioAnalyzers[i];
     deviceAudioAnalyzers.clear();
 }
 
