@@ -146,7 +146,7 @@ void PMDeviceAudioAnalyzer::clear()
 //--------------------------------------------------------------------------------------------
 void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 {
-    int numUsedChannels = (channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels;
+    unsigned int numUsedChannels = (unsigned int)((channelMode == PMDAA_CHANNEL_MONO) ? 1 : channelNumbers.size());
 
     // Init of audio event params struct
     pitchParams pitchParams;
@@ -435,7 +435,7 @@ void PMDeviceAudioAnalyzer::checkMelodyDirection(int channel)
 void PMDeviceAudioAnalyzer::setOnsetsThreshold(float _f)
 {
     onsetsThreshold = _f;
-    unsigned int numUsedChannels = (unsigned int) ((channelMode == PMDAA_CHANNEL_MONO) ? 1 : inChannels);
+    unsigned int numUsedChannels = (unsigned int)((channelMode == PMDAA_CHANNEL_MONO) ? 1 : channelNumbers.size());
 
 //    for (int i = 0; i < numUsedChannels; ++i)
 //    {
