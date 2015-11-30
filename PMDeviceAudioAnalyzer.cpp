@@ -212,11 +212,15 @@ float PMDeviceAudioAnalyzer::getRms(float *input, int bufferSize)
 float PMDeviceAudioAnalyzer::getAbsMean(float *input, int bufferSize)
 {
     float sum = 0.0f;
-    for (int i = 0; i < bufferSize * inChannels; i += inChannels) {
-//        sum += abs(input[i + channel]);
-        sum += abs(input[i]);
+    for (int i=0; i<bufferSize; ++i)
+    {
+        for (int j=0; j<channelNumbers.size(); ++j)
+        {
+            sum += abs(input[(i * inChannels) + channelNumbers[j]]);
+        }
     }
-    return sum / bufferSize;
+
+    return (sum / (bufferSize * channelNumbers.size()));
 }
 
 void PMDeviceAudioAnalyzer::detectedSilence()
