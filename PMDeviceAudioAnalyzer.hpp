@@ -16,11 +16,6 @@
 #include "ofxAubio.h"
 #include "PMAudioInParams.h"
 
-typedef enum
-{
-    PMDAA_CHANNEL_MULTI = 0,
-    PMDAA_CHANNEL_MONO = 1
-} PMDAA_ChannelMode;
 
 
 class PMDeviceAudioAnalyzer : public ofBaseSoundInput
@@ -31,7 +26,7 @@ public:
     PMDeviceAudioAnalyzer() {};
     ~PMDeviceAudioAnalyzer();
 
-    void setup(unsigned int audioInputIndex, PMDAA_ChannelMode channelMode, vector<unsigned int> channelNumbers,
+    void setup(unsigned int audioInputIndex, vector<unsigned int> channelNumbers,
             float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold,
             float smoothingDelta,
@@ -77,13 +72,7 @@ private:
     int bufferSize;
     int numBuffers;
 
-    // Channel mode
-    PMDAA_ChannelMode channelMode;
     vector<unsigned int> channelNumbers;
-
-    // Pitch
-    float minPitchMidiNote;
-    float maxPitchMidiNote;
 
     // Silence
     bool wasSilent;
@@ -92,66 +81,65 @@ private:
     // Onsets
     float onsetsThreshold;
     // TODO: Deixa de ser vector
-    vector<bool> oldOnsetState;
+    bool oldOnsetState;
 
     // Smoothing
     float smoothingDelta;
-    // TODO: Deixa de ser vector
-    vector<float> oldMidiNotesValues;
-    // TODO: Deixa de ser vector
-    vector<deque<float> > midiNoteHistory;
+    // TODO: Deixa de ser vector (però manté deque)
+    deque<float> midiNoteHistory;
 
     // Sound analysis
 
     ofSoundStream soundStream;
 
     // TODO: Deixa de ser vector
-    vector<ofxAubioPitch *> vAubioPitches;
+    ofxAubioPitch *aubioPitch;
     // TODO: Deixa de ser vector
-    vector<ofxAubioOnset *> vAubioOnsets;
+    ofxAubioOnset *aubioOnset;
     // TODO: Deixa de ser vector
-    vector<ofxAubioMelBands *> vAubioMelBands;
+    ofxAubioMelBands *aubioMelBands;
 
     bool isSetup;
 
     // TODO: Deixa de ser vector
-    vector<bool> isInSilence;
+    bool isInSilence;
     // TODO: Deixa de ser vector
-    vector<bool> isInPause;
+    bool isInPause;
     // TODO: Deixa de ser vector
-    vector<float> silenceBeginTime;
+    float silenceBeginTime;
     float silenceTimeTreshold;
     float pauseTimeTreshold;
 
     // TODO: Fora canal
-    float getEnergy(unsigned int channel);
+    float getEnergy();
     // TODO: Fora canal, es manté input perque no ve directament d'Aubio
-    float getRms(float *input, int bufferSize, int channel);
+    float getRms(float *input, int bufferSize);
     // TODO: Fora canal, es manté input perque no ve directament d'Aubio
-    float getAbsMean(float *input, int bufferSize, int channel);
+    float getAbsMean(float *input, int bufferSize);
     // TODO: Fora canal
-    void detectedSilence(int channel);
+    void detectedSilence();
     // TODO: Fora canal
-    void updateSilenceTime(int channel);
+    void updateSilenceTime();
     // TODO: Fora canal
-    void detectedEndSilence(int channel);
+    void detectedEndSilence();
     // TODO: Fora canal
-    void checkMelodyDirection(int channel);
+    void checkMelodyDirection();
 
     int ascDescAnalysisSize;
 
     // sshht
     // TODO: Deixa de ser vector
-    vector<bool> isShtSounding;
+    bool isShtSounding;
     // TODO: Deixa de ser vector
-    vector<float> shtBeginTime;
+    float shtBeginTime;
     float shtTimeTreshold;
     // TODO: Deixa de ser vector
-    vector<bool> isShtTrueSent;
+    bool isShtTrueSent;
     // TODO: Deixa de ser vector
-    vector<bool> isShtFalseSent;
+    bool isShtFalseSent;
 
-    void checkShtSound(int channel);
+    // TODO: Fora canal
+    void checkShtSound();
 };
 
 #endif /* PMDeviceAudioAnalyzer_h */
