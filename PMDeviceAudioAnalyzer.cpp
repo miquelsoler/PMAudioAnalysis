@@ -9,7 +9,6 @@
 #include "PMDeviceAudioAnalyzer.hpp"
 #include "PMRecorder.hpp"
 
-static const float SMOOTHING_INITIALVALUE = -999.0f;
 
 // TODO: Should be able to change to a custom number
 static const int NUM_MELBANDS = 40;
@@ -35,9 +34,7 @@ PMDeviceAudioAnalyzer::~PMDeviceAudioAnalyzer()
 
 void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, vector<unsigned int> _channelNumbers,
         float _silenceThreshold, unsigned int silenceQueueLength,
-        float _onsetsThreshold,
-        float _smoothingDelta,
-        int _ascDescAnalysisSize)
+        float _onsetsThreshold, int _ascDescAnalysisSize)
 {
 
     if (isSetup) return;
@@ -58,12 +55,9 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, vector<unsigned
 
     // Onsets
     onsetsThreshold = _onsetsThreshold;
-
     oldOnsetState = false;
 
-    // Smoothing
-    smoothingDelta = _smoothingDelta;
-
+    // Pitch
     ascDescAnalysisSize = _ascDescAnalysisSize;
 
     // Aubio Setup
@@ -164,16 +158,20 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
         ofNotifyEvent(eventEnergyChanged, energyParams, this);
     }
 
-    if (!isSilent) {
-        checkShtSound();
+    // Shhhht
+    {
+        if (!isSilent) checkShtSound();
     }
 
-    bool isOnset = aubioOnset->received();
-    if (oldOnsetState != isOnset)
+    // Onsets
     {
-        oldOnsetState = isOnset;
-        onsetParams.isOnset = isOnset;
-        ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
+        bool isOnset = aubioOnset->received();
+        if (oldOnsetState != isOnset)
+        {
+            oldOnsetState = isOnset;
+            onsetParams.isOnset = isOnset;
+            ofNotifyEvent(eventOnsetStateChanged, onsetParams, this);
+        }
     }
 
     //Call to the Recorder
@@ -350,12 +348,5 @@ void PMDeviceAudioAnalyzer::checkMelodyDirection()
 void PMDeviceAudioAnalyzer::setOnsetsThreshold(float value)
 {
     onsetsThreshold = value;
-//    unsigned int numUsedChannels = (unsigned int) ((channelMode == PMDAA_CHANNEL_MONO) ? 1 : channelNumbers.size());
-//
-//    for (int i = 0; i < numUsedChannels; ++i)
-//    {
-//        cout << "DeviceAudioAnalyz : setting onsets thr " << endl;
-//        aubioOnset[i]->setThreshold(onsetsThreshold);
-//    }
 }
 

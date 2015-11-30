@@ -10,16 +10,11 @@
 
 void PMAudioAnalyzer::init(
         float _silenceThreshold, unsigned int _silenceQueueLength,
-        float _onsetsThreshold,
-        float _smoothingDelta, int _ascDescAnalysisSize) {
+        float _onsetsThreshold, int _ascDescAnalysisSize) {
 
     silenceThreshold = _silenceThreshold;
     silenceQueueLength = _silenceQueueLength;
-
     onsetsThreshold = _onsetsThreshold;
-
-    smoothingDelta = _smoothingDelta;
-
     ascDescAnalysisSize = _ascDescAnalysisSize;
 }
 
@@ -27,10 +22,12 @@ PMDeviceAudioAnalyzer *PMAudioAnalyzer::addDeviceAnalyzer(unsigned int audioInpu
         int sampleRate, int bufferSize,vector<unsigned int> channelNumbers)
 {
     PMDeviceAudioAnalyzer *deviceAudioAnalyzer = new PMDeviceAudioAnalyzer(deviceID, inChannels, outChannels, sampleRate, bufferSize);
-    deviceAudioAnalyzer->setup(audioInputIndex, channelNumbers,
-            silenceThreshold, silenceQueueLength,
+    deviceAudioAnalyzer->setup(audioInputIndex,
+            channelNumbers,
+            silenceThreshold,
+            silenceQueueLength,
             onsetsThreshold,
-            smoothingDelta, ascDescAnalysisSize);
+            ascDescAnalysisSize);
 
     deviceAudioAnalyzers.push_back(deviceAudioAnalyzer);
 
@@ -62,9 +59,9 @@ void PMAudioAnalyzer::clear() {
     deviceAudioAnalyzers.clear();
 }
 
-vector<ofSoundDevice> PMAudioAnalyzer::getInputDevices() {
+vector<ofSoundDevice> PMAudioAnalyzer::getInputDevices()
+{
     ofSoundStream soundStream;
-
     vector<ofSoundDevice> allDevices = soundStream.getDeviceList();
 
 #ifdef OF_DEBUG
@@ -77,12 +74,4 @@ vector<ofSoundDevice> PMAudioAnalyzer::getInputDevices() {
             inputDevices.push_back(allDevices[i]);
 
     return inputDevices;
-}
-
-float PMAudioAnalyzer::getMidiNote() {
-    return 64.0;
-}
-
-float PMAudioAnalyzer::getEnergy() {
-    return 0.5;
 }

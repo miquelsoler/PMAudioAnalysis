@@ -29,7 +29,6 @@ public:
     void setup(unsigned int audioInputIndex, vector<unsigned int> channelNumbers,
             float silenceThreshold, unsigned int silenceQueueLength,
             float onsetsThreshold,
-            float smoothingDelta,
             int ascDescAnalysisSize);
 
     void start();
@@ -82,7 +81,6 @@ private:
     bool oldOnsetState;
 
     // Smoothing
-    float smoothingDelta;
     deque<float> midiNoteHistory;
 
     // Sound analysis
