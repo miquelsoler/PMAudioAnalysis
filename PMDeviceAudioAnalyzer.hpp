@@ -50,7 +50,6 @@ public:
 
     void                    setOnsetsThreshold(float value);
 
-
     // Events for listeners
     ofEvent<pitchParams> eventPitchChanged;
     ofEvent<silenceParams> eventSilenceStateChanged;
@@ -80,65 +79,45 @@ private:
 
     // Onsets
     float onsetsThreshold;
-    // TODO: Deixa de ser vector
     bool oldOnsetState;
 
     // Smoothing
     float smoothingDelta;
-    // TODO: Deixa de ser vector (però manté deque)
     deque<float> midiNoteHistory;
 
     // Sound analysis
 
     ofSoundStream soundStream;
 
-    // TODO: Deixa de ser vector
     ofxAubioPitch *aubioPitch;
-    // TODO: Deixa de ser vector
     ofxAubioOnset *aubioOnset;
-    // TODO: Deixa de ser vector
     ofxAubioMelBands *aubioMelBands;
 
     bool isSetup;
 
-    // TODO: Deixa de ser vector
     bool isInSilence;
-    // TODO: Deixa de ser vector
     bool isInPause;
-    // TODO: Deixa de ser vector
     float silenceBeginTime;
     float silenceTimeTreshold;
     float pauseTimeTreshold;
 
-    // TODO: Fora canal
     float getEnergy();
-    // TODO: Fora canal, es manté input perque no ve directament d'Aubio
     float getRms(float *input, int bufferSize);
-    // TODO: Fora canal, es manté input perque no ve directament d'Aubio
     float getAbsMean(float *input, int bufferSize);
-    // TODO: Fora canal
     void detectedSilence();
-    // TODO: Fora canal
     void updateSilenceTime();
-    // TODO: Fora canal
     void detectedEndSilence();
-    // TODO: Fora canal
     void checkMelodyDirection();
 
     int ascDescAnalysisSize;
 
     // sshht
-    // TODO: Deixa de ser vector
     bool isShtSounding;
-    // TODO: Deixa de ser vector
     float shtBeginTime;
     float shtTimeTreshold;
-    // TODO: Deixa de ser vector
     bool isShtTrueSent;
-    // TODO: Deixa de ser vector
     bool isShtFalseSent;
 
-    // TODO: Fora canal
     void checkShtSound();
 };
 
