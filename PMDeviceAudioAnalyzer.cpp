@@ -349,4 +349,3 @@ void PMDeviceAudioAnalyzer::setOnsetsThreshold(float value)
 {
     onsetsThreshold = value;
 }
-
