@@ -50,7 +50,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, vector<unsigned
     silenceTimeTreshold = silenceQueueLength;
     pauseTimeTreshold = 1000;
 
-    //sht
+    // Shhht!
     shtTimeTreshold = 150;
 
     // Onsets
@@ -119,18 +119,20 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
 
     // Silence
     bool isSilent = (getAbsMean(input, bufferSize) < silenceThreshold);
-    if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
     {
-        wasSilent = isSilent;
-        if (isSilent) {
-            detectedSilence();
-        } else {
-            detectedEndSilence();
+        if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
+        {
+            wasSilent = isSilent;
+            if (isSilent) {
+                silenceStarted();
+            } else {
+                silenceEnded();
+            }
         }
-    }
 
-    if (isInSilence)
-        updateSilenceTime();
+        if (isInSilence)
+            updateSilenceTime();
+    }
 
     // Pitch
     {
@@ -221,35 +223,55 @@ float PMDeviceAudioAnalyzer::getAbsMean(float *input, int bufferSize)
     return (sum / (bufferSize * channelNumbers.size()));
 }
 
-void PMDeviceAudioAnalyzer::detectedSilence()
+void PMDeviceAudioAnalyzer::silenceStarted()
 {
+//    cout << ">>>>>>> silenceStarted" << endl;
     silenceBeginTime = ofGetElapsedTimeMillis();
     isInSilence = true;
+
+    silenceParams silenceParams;
+    silenceParams.deviceID = deviceID;
+    silenceParams.audioInputIndex = audioInputIndex;
+    silenceParams.isSilent = true;
+    silenceParams.silenceTime = silenceBeginTime;
+//    cout << "silenceStarted sending silence change event " << silenceParams.isSilent << endl;
+//    ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
 }
 
 void PMDeviceAudioAnalyzer::updateSilenceTime()
 {
     float timeOfSilence = ofGetElapsedTimeMillis() - silenceBeginTime;
+
+    bool sendSilenceEvent = false;
+
     if (timeOfSilence > silenceTimeTreshold) {
+        sendSilenceEvent = !isInSilence;
+    } else {
+        sendSilenceEvent = isInSilence;
+    }
+
+    if (sendSilenceEvent)
+    {
         silenceParams silenceParams;
         silenceParams.deviceID = deviceID;
         silenceParams.audioInputIndex = audioInputIndex;
-        silenceParams.isSilent = true;
+        silenceParams.isSilent = isInSilence;
         silenceParams.silenceTime = 0;
+//        cout << "updateSilenceTime sending silence change event " << silenceParams.isSilent << endl;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
 
-    bool sendEvent = false;
+    bool sendPauseEvent = false;
 
     if (timeOfSilence > pauseTimeTreshold) {
-        sendEvent = !(isInPause);
+        sendPauseEvent = !isInPause;
         isInPause = true;
     } else {
-        sendEvent = isInPause;
+        sendPauseEvent = isInPause;
         isInPause = false;
     }
 
-    if (sendEvent) {
+    if (sendPauseEvent) {
         pauseParams pauseParams;
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
@@ -259,23 +281,27 @@ void PMDeviceAudioAnalyzer::updateSilenceTime()
     }
 }
 
-void PMDeviceAudioAnalyzer::detectedEndSilence()
+void PMDeviceAudioAnalyzer::silenceEnded()
 {
-    silenceParams silenceParams;
-    silenceParams.deviceID = deviceID;
-    silenceParams.audioInputIndex = audioInputIndex;
     float timeOfSilence = ofGetElapsedTimeMillis() - silenceBeginTime;
-    if (timeOfSilence > silenceTimeTreshold) {
+
+    if (isInSilence) {
+        silenceParams silenceParams;
+        silenceParams.deviceID = deviceID;
+        silenceParams.audioInputIndex = audioInputIndex;
         silenceParams.isSilent = false;
         silenceParams.silenceTime = timeOfSilence;
+//        cout << "silenceEnded sending silence change event " << silenceParams.isSilent << endl;
         ofNotifyEvent(eventSilenceStateChanged, silenceParams, this);
     }
+
     if (isInPause) {
         pauseParams pauseParams;
         pauseParams.deviceID = deviceID;
         pauseParams.audioInputIndex = audioInputIndex;
         pauseParams.isPaused = false;
         pauseParams.pauseTime = timeOfSilence;
+//        cout << "silenceEnded sending pause change event " << pauseParams.isPaused << endl;
         ofNotifyEvent(eventPauseStateChanged, pauseParams, this);
     }
     isInPause = false;

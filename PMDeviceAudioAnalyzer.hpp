@@ -72,10 +72,6 @@ private:
 
     vector<unsigned int> channelNumbers;
 
-    // Silence
-    bool wasSilent;
-    float silenceThreshold;
-
     // Onsets
     float onsetsThreshold;
     bool oldOnsetState;
@@ -93,6 +89,10 @@ private:
 
     bool isSetup;
 
+    // Silence
+    bool wasSilent;
+    float silenceThreshold;
+
     bool isInSilence;
     bool isInPause;
     float silenceBeginTime;
@@ -102,9 +102,9 @@ private:
     float getEnergy();
     float getRms(float *input, int bufferSize);
     float getAbsMean(float *input, int bufferSize);
-    void detectedSilence();
+    void silenceStarted();
     void updateSilenceTime();
-    void detectedEndSilence();
+    void silenceEnded();
     void checkMelodyDirection();
 
     int ascDescAnalysisSize;
