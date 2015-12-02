@@ -92,6 +92,7 @@ private:
     // Silence
     bool wasSilent;
     float silenceThreshold;
+    float oldTimeOfSilence;
 
     bool isInSilence;
     bool isInPause;
