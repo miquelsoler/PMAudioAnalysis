@@ -46,7 +46,7 @@ public:
     void                    setSilenceThreshold(float value)   { silenceThreshold = value; };
     void                    setSilenceQueueLength(float value) { silenceTimeTreshold = value; };
     void                    setPauseTimeTreshold(float value)  { pauseTimeTreshold = value; };
-
+    void                    setDigitalGain(float value) {digitalGain = value; };
     void                    setOnsetsThreshold(float value);
 
     // Events for listeners
@@ -99,6 +99,7 @@ private:
     float silenceBeginTime;
     float silenceTimeTreshold;
     float pauseTimeTreshold;
+    float digitalGain;
 
     float getEnergy();
     float getRms(float *input, int bufferSize);

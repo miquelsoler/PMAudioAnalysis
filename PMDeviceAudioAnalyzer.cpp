@@ -45,6 +45,7 @@ void PMDeviceAudioAnalyzer::setup(unsigned int _audioInputIndex, vector<unsigned
     channelNumbers = _channelNumbers;
 
     // Silence & Pause
+    digitalGain = 1.0f;
     wasSilent = false;
     silenceThreshold = _silenceThreshold;
     silenceTimeTreshold = silenceQueueLength;
@@ -119,6 +120,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     float currentMidiNote = aubioPitch->latestPitch;
 
     // Silence
+    //cout << " sil.thr : " << silenceThreshold << endl;
     bool isSilent = (getAbsMean(input, bufferSize) < silenceThreshold);
     {
         if (wasSilent != isSilent) // Changes in silence (ON>OFF or OFF>ON)
@@ -128,6 +130,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
                 silenceStarted();
             } else {
                 silenceEnded();
+
             }
         }
 
@@ -135,6 +138,9 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
             updateSilenceTime();
     }
 
+//    if(isSilent) cout << "in silence..." << endl;
+//    else cout << "not silent" << endl;
+    
     // Pitch
     {
         if (currentMidiNote)
@@ -217,7 +223,7 @@ float PMDeviceAudioAnalyzer::getAbsMean(float *input, int bufferSize)
     {
         for (int j=0; j<channelNumbers.size(); ++j)
         {
-            sum += abs(input[(i * inChannels) + channelNumbers[j]]);
+            sum += abs(input[(i * inChannels) + channelNumbers[j]]*digitalGain);
         }
     }
 
