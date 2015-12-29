@@ -118,6 +118,7 @@ void PMDeviceAudioAnalyzer::audioIn(float *input, int bufferSize, int nChannels)
     aubioMelBands->audioIn(input, bufferSize, nChannels);
 
     float currentMidiNote = aubioPitch->latestPitch;
+//    cout << "Pitch confidence: " << aubioPitch->pitchConfidence << endl;
 
     // Silence
     //cout << " sil.thr : " << silenceThreshold << endl;
